@@ -36,6 +36,7 @@ set(WebCore_PRIVATE_INCLUDE_DIRECTORIES
     "${WEBCORE_DIR}/Modules/fetch"
     "${WEBCORE_DIR}/Modules/filesystemaccess"
     "${WEBCORE_DIR}/Modules/geolocation"
+    "${WEBCORE_DIR}/Modules/networkinformation"
     "${WEBCORE_DIR}/Modules/highlight"
     "${WEBCORE_DIR}/Modules/indexeddb"
     "${WEBCORE_DIR}/Modules/indexeddb/client"
@@ -1936,6 +1937,22 @@ list(APPEND WebCore_IDL_FILES
     html/canvas/WebGLVertexArrayObject.idl
     html/canvas/WebGLVertexArrayObjectOES.idl
 )
+
+    LIST(APPEND WebCore_INCLUDE_DIRECTORIES
+         ${WEBCORE_DIR}/Modules/networkinformation
+    )
+
+    LIST(APPEND WebCore_SOURCES
+        Modules/networkinformation/NetworkInformation.cpp
+        Modules/networkinformation/NavigatorNetworkInformation.cpp
+    )
+
+    LIST(APPEND WebCore_IDL_FILES
+        Modules/networkinformation/ConnectionType.idl
+        Modules/networkinformation/NetworkInformation.idl
+        Modules/networkinformation/Navigator+NetworkInformation.idl
+    )
+
 
 if (ENABLE_WEBGL)
     list(APPEND WebCore_SOURCES

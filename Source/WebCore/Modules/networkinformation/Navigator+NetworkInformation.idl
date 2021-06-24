@@ -1,0 +1,7 @@
+
+
+[
+    ImplementedBy=NavigatorNetworkInformation,
+] partial interface Navigator {
+    readonly attribute NetworkInformation connection;
+};

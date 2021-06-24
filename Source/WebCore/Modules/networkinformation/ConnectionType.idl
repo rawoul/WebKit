@@ -1,0 +1,11 @@
+enum ConnectionType {
+    "bluetooth",
+    "cellular",
+    "ethernet",
+    "mixed",
+    "none",
+    "other",
+    "unknown",
+    "wifi",
+    "wimax"
+};

@@ -1,0 +1,14 @@
+
+typedef unrestricted double Megabit;
+
+[
+  ActiveDOMObject,
+  SkipVTableValidation,
+  Exposed=Window
+]
+interface NetworkInformation: EventTarget {
+  readonly attribute ConnectionType type;
+  readonly attribute Megabit downlinkMax;
+  attribute EventHandler onchange;
+};
+
