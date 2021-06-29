@@ -48,31 +48,21 @@ namespace WebCore {
 
 static const char* platformForUAString()
 {
-#if OS(MAC_OS_X)
-    return "Macintosh";
-#else
-    if (chassisType() == WTF::ChassisType::Mobile)
-        return "Linux";
-    return "X11";
-#endif
+    return "Freebox";
 }
 
 static const String platformVersionForUAString()
 {
-#if OS(UNIX)
-    if (chassisType() == WTF::ChassisType::Mobile)
-        return "like Android 4.4"_s;
+    const char* fw_version = getenv("FREEBOX_SW_VERSION");
+    const char* hw_model = getenv("FREEBOX_HW_MODEL");
 
-    struct utsname name;
-    uname(&name);
-    static NeverDestroyed<const String> uaOSVersion(makeString(name.sysname, ' ', name.machine));
+    if (!fw_version)
+        fw_version = "99.0-dev";
+    if (!hw_model)
+        hw_model = "fbx";
+
+    static NeverDestroyed<const String> uaOSVersion = makeString(hw_model, '/', fw_version);
     return uaOSVersion;
-#else
-    // We will always claim to be Safari in Intel Mac OS X, since Safari without
-    // OS X or anything on ARM triggers mobile versions of some websites.
-    static NeverDestroyed<const String> uaOSVersion(MAKE_STATIC_STRING_IMPL("Intel Mac OS X 10_13_4"));
-    return uaOSVersion;
-#endif
 }
 
 static String buildUserAgentString(const UserAgentQuirks& quirks)
