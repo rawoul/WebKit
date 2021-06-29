@@ -945,7 +945,7 @@ int PlatformKeyboardEvent::windowsKeyCodeForWPEKeyCode(unsigned keycode)
         // VK_CONTROL (11) CTRL key
 
     case WPE_KEY_Menu:
-        return VK_APPS; // (5D) Applications key (Natural keyboard)
+        return VK_MENU;
 
         // VK_MENU (12) ALT key
 
@@ -1002,7 +1002,7 @@ int PlatformKeyboardEvent::windowsKeyCodeForWPEKeyCode(unsigned keycode)
     case WPE_KEY_KP_Delete:
         return VK_DELETE; // (2E) DEL key
     case WPE_KEY_Help:
-        return VK_HELP; // (2F) HELP key
+        return VK_INFO;
     case WPE_KEY_0:
     case WPE_KEY_parenright:
         return VK_0; // (30) 0) key
@@ -1143,7 +1143,7 @@ int PlatformKeyboardEvent::windowsKeyCodeForWPEKeyCode(unsigned keycode)
         return VK_RMENU; // (A5) Right MENU key
 
     case WPE_KEY_Back:
-        return VK_BROWSER_BACK; // VK_BROWSER_BACK (A6) Windows 2000/XP: Browser Back key
+        return VK_ESCAPE;
     case WPE_KEY_Forward:
         return VK_BROWSER_FORWARD; // (A7) Windows 2000/XP: Browser Forward key
     case WPE_KEY_Refresh:
@@ -1232,7 +1232,7 @@ int PlatformKeyboardEvent::windowsKeyCodeForWPEKeyCode(unsigned keycode)
         // VK_EXSEL (F8) ExSel key
         // VK_EREOF (F9) Erase EOF key
     case WPE_KEY_AudioPlay:
-        return VK_PLAY; // VK_PLAY (FA) Play key
+        return VK_MEDIA_PLAY_PAUSE;
         // VK_ZOOM (FB) Zoom key
         // VK_NONAME (FC) Reserved for future use
         // VK_PA1 (FD) PA1 key

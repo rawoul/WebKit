@@ -317,4 +317,10 @@
 
 #define VK_OEM_CLEAR 0xFE // Clear key
 
+#define VK_CHANNEL_UP 0x1AB //ChannelUp key
+
+#define VK_CHANNEL_DOWN 0x1AC // ChannelDown key
+
+#define VK_INFO 0x1C9 // Info key
+
 #endif // VK_UNKNOWN
