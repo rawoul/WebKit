@@ -3651,7 +3651,7 @@ void MediaPlayerPrivateGStreamer::cancelRepaint(bool destroying)
     //
     // This function is also used when destroying the player (destroying parameter is true), to release the gstreamer thread from
     // m_drawCondition and to ensure that new triggerRepaint calls won't wait on m_drawCondition.
-    if (m_isUsingFallbackVideoSink) {
+    if (!m_canRenderingBeAccelerated || m_isUsingFallbackVideoSink) {
         Locker locker { m_drawLock };
         m_drawTimer.stop();
         m_isBeingDestroyed = destroying;
