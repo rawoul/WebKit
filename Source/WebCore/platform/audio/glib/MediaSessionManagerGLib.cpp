@@ -19,7 +19,7 @@
 #include "config.h"
 #include "MediaSessionManagerGLib.h"
 
-#if USE(GLIB) && ENABLE(MEDIA_SESSION)
+#if USE(GLIB) && ENABLE(MEDIA_SESSION) && !USE(FBX_API)
 
 #include "AudioSession.h"
 #include "HTMLMediaElement.h"
@@ -329,4 +329,4 @@ void MediaSessionManagerGLib::dispatch(PlatformMediaSession::RemoteControlComman
 
 } // namespace WebCore
 
-#endif // USE(GLIB) && ENABLE(MEDIA_SESSION)
+#endif // USE(GLIB) && ENABLE(MEDIA_SESSION) && !USE(FBX_API)

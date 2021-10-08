@@ -18,7 +18,7 @@
 
 #pragma once
 
-#if USE(GLIB) && ENABLE(MEDIA_SESSION)
+#if USE(GLIB) && ENABLE(MEDIA_SESSION) && !USE(FBX_API)
 
 #include "MediaSessionIdentifier.h"
 #include "PlatformMediaSession.h"
@@ -64,4 +64,4 @@ private:
 
 } // namespace WebCore
 
-#endif // USE(GLIB) && ENABLE(MEDIA_SESSION)
+#endif // USE(GLIB) && ENABLE(MEDIA_SESSION) && !USE(FBX_API)

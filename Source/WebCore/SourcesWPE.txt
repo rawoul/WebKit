@@ -100,4 +100,7 @@ platform/wpe/PlatformScreenWPE.cpp
 
 platform/xdg/MIMETypeRegistryXdg.cpp
 
+platform/audio/fbx/MediaSessionFbx.cpp
+platform/audio/fbx/MediaSessionManagerFbx.cpp
+
 rendering/RenderThemeAdwaita.cpp

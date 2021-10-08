@@ -647,7 +647,7 @@ void Internals::resetToConsistentState(Page& page)
     WebCore::setContentSizeCategory(kCTFontContentSizeCategoryL);
 #endif
 
-#if ENABLE(MEDIA_SESSION) && USE(GLIB)
+#if ENABLE(MEDIA_SESSION) && USE(GLIB) && !USE(FBX_API)
     auto& sessionManager = reinterpret_cast<MediaSessionManagerGLib&>(PlatformMediaSessionManager::sharedManager());
     sessionManager.setDBusNotificationsEnabled(false);
 #endif

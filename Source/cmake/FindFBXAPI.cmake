@@ -11,6 +11,10 @@
 #  FBXCONNMAN_INCLUDE_DIRS - the fbxconnman include directories
 #  FBXCONNMAN_LIBRARIES - link these to use fbxconnman
 #
+#  MEDIACONTROLLER_FOUND - system has mediacontroller
+#  MEDIACONTROLLER_INCLUDE_DIRS - the mediacontroller include directories
+#  MEDIACONTROLLER_LIBRARIES - link these to use mediacontroller
+#
 
 find_package(PkgConfig)
 include(FindPackageHandleStandardArgs)
@@ -25,7 +29,12 @@ find_package_handle_standard_args(FBXCONNMAN
     REQUIRED_VARS FBXCONNMAN_FOUND
 )
 
-if (FBXBUS_FOUND AND FBXCONNMAN_FOUND)
+pkg_check_modules(MEDIACONTROLLER mediacontroller)
+find_package_handle_standard_args(MEDIACONTROLLER
+    REQUIRED_VARS MEDIACONTROLLER_FOUND
+)
+
+if (FBXBUS_FOUND AND FBXCONNMAN_FOUND AND MEDIACONTROLLER_FOUND)
     set(FBXAPI_FOUND TRUE)
 else ()
     set(FBXAPI_FOUND FALSE)

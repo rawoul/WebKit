@@ -19,7 +19,7 @@
 #include "config.h"
 #include "MediaSessionGLib.h"
 
-#if USE(GLIB) && ENABLE(MEDIA_SESSION)
+#if USE(GLIB) && ENABLE(MEDIA_SESSION) && !USE(FBX_API)
 
 #include "ApplicationGLib.h"
 #include "MediaSessionManagerGLib.h"
