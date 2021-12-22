@@ -238,6 +238,7 @@ set(WTF_PUBLIC_HEADERS
     RobinHoodHashSet.h
     RobinHoodHashTable.h
     RunLoop.h
+    Fbxbus.h
     SHA1.h
     SafeStrerror.h
     SaturatedArithmetic.h

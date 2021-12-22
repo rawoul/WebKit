@@ -99,6 +99,7 @@ WEBKIT_OPTION_DEFINE(USE_LCMS "Whether to enable support for image color managem
 WEBKIT_OPTION_DEFINE(USE_OPENJPEG "Whether to enable support for JPEG2000 images." PUBLIC ON)
 WEBKIT_OPTION_DEFINE(USE_SOUP2 "Whether to enable usage of Soup 2 instead of Soup 3." PUBLIC OFF)
 WEBKIT_OPTION_DEFINE(USE_WOFF2 "Whether to enable support for WOFF2 Web Fonts." PUBLIC ON)
+WEBKIT_OPTION_DEFINE(USE_FBX_API "Whether to enable support for using Freebox API " PUBLIC OFF)
 
 # Private options specific to the WPE port.
 WEBKIT_OPTION_DEPEND(ENABLE_DOCUMENTATION ENABLE_INTROSPECTION)
@@ -326,6 +327,15 @@ SET_AND_EXPOSE_TO_BUILD(USE_OPENGL_ES TRUE)
 SET_AND_EXPOSE_TO_BUILD(HAVE_OPENGL_ES_3 TRUE)
 SET_AND_EXPOSE_TO_BUILD(USE_WPE_RENDERER TRUE)
 SET_AND_EXPOSE_TO_BUILD(USE_XDGMIME TRUE)
+
+
+if (USE_FBX_API)
+    find_package(FBXAPI)
+    if (NOT FBXAPI_FOUND)
+        message(FATAL_ERROR "fbx modules are required for USE_FBX_API.")
+    endif ()
+endif ()
+
 
 if (WTF_CPU_ARM OR WTF_CPU_MIPS)
     SET_AND_EXPOSE_TO_BUILD(USE_CAPSTONE ${ENABLE_DEVELOPER_MODE})
