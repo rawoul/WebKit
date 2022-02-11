@@ -61,6 +61,10 @@
 #include "WebKitThunderDecryptorGStreamer.h"
 #endif
 
+#if ENABLE(ENCRYPTED_MEDIA) && ENABLE(FBXCDM)
+#include "gstfbxcdm.h"
+#endif
+
 #if ENABLE(VIDEO)
 #include "WebKitWebSourceGStreamer.h"
 #endif
@@ -354,6 +358,16 @@ void registerWebKitGStreamerElements()
         }
 #endif
 
+#endif
+
+#if ENABLE(ENCRYPTED_MEDIA) && ENABLE(FBXCDM)
+        gst_element_register(nullptr, "fbxcdm", GST_RANK_MARGINAL, GST_TYPE_FBXCDM);
+
+        {
+            GRefPtr<GstElementFactory> elementFactory = adoptGRef(gst_element_factory_find("h264parse"));
+            if (elementFactory)
+                gst_plugin_feature_set_rank(GST_PLUGIN_FEATURE_CAST(elementFactory.get()), GST_RANK_PRIMARY + 1);
+        }
 #endif
 
 #if ENABLE(MEDIA_STREAM)

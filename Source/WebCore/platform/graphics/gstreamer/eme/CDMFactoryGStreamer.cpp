@@ -37,12 +37,39 @@
 #include "CDMThunder.h"
 #endif
 
+#if ENABLE(FBXCDM)
+#include "CDMFbxcdm.h"
+#include "CDMProxyFbxcdm.h"
+#endif
+
 namespace WebCore {
 
 void CDMFactory::platformRegisterFactories(Vector<CDMFactory*>& factories)
 {
+#if ENABLE(THUNDER) || ENABLE(FBXCDM)
+    unsigned count = 0;
+
 #if ENABLE(THUNDER)
-    factories.append(&CDMFactoryThunder::singleton());
+    count++;
+#endif
+
+#if ENABLE(FBXCDM)
+    count++;
+#endif
+
+    if (count == 0)
+        return;
+
+    factories.reserveInitialCapacity(count);
+
+#if ENABLE(THUNDER)
+    factories.uncheckedAppend(&CDMFactoryThunder::singleton());
+#endif
+
+#if ENABLE(FBXCDM)
+    factories.uncheckedAppend(&CDMFactoryFbxcdm::singleton());
+#endif
+
 #else
     UNUSED_PARAM(factories);
 #endif
@@ -51,10 +78,29 @@ void CDMFactory::platformRegisterFactories(Vector<CDMFactory*>& factories)
 Vector<CDMProxyFactory*> CDMProxyFactory::platformRegisterFactories()
 {
     Vector<CDMProxyFactory*> factories;
+    unsigned count = 0;
+
 #if ENABLE(THUNDER)
-    factories.reserveInitialCapacity(1);
+    count++;
+#endif
+
+#if ENABLE(FBXCDM)
+    count++;
+#endif
+
+    if (count == 0)
+        return factories;
+
+    factories.reserveInitialCapacity(count);
+
+#if ENABLE(THUNDER)
     factories.uncheckedAppend(&CDMFactoryThunder::singleton());
 #endif
+
+#if ENABLE(FBXCDM)
+    factories.uncheckedAppend(&CDMProxyFactoryFbxcdm::singleton());
+#endif
+
     return factories;
 }
 

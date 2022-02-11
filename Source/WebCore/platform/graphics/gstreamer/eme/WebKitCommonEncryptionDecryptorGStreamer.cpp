@@ -77,6 +77,7 @@ static GstStateChangeReturn changeState(GstElement*, GstStateChange transition);
 static GstCaps* transformCaps(GstBaseTransform*, GstPadDirection, GstCaps*, GstCaps*);
 static gboolean acceptCaps(GstBaseTransform*, GstPadDirection, GstCaps*);
 static GstFlowReturn transformInPlace(GstBaseTransform*, GstBuffer*);
+static GstFlowReturn transform(GstBaseTransform*, GstBuffer*, GstBuffer*);
 static gboolean sinkEventHandler(GstBaseTransform*, GstEvent*);
 static void setContext(GstElement*, GstContext*);
 
@@ -100,6 +101,7 @@ static void webkit_media_common_encryption_decrypt_class_init(WebKitMediaCommonE
 
     GstBaseTransformClass* baseTransformClass = GST_BASE_TRANSFORM_CLASS(klass);
     baseTransformClass->transform_ip = GST_DEBUG_FUNCPTR(transformInPlace);
+    baseTransformClass->transform = GST_DEBUG_FUNCPTR(transform);
     baseTransformClass->transform_caps = GST_DEBUG_FUNCPTR(transformCaps);
     baseTransformClass->accept_caps = GST_DEBUG_FUNCPTR(acceptCaps);
     baseTransformClass->transform_ip_on_passthrough = FALSE;
@@ -516,6 +518,67 @@ static void setContext(GstElement* element, GstContext* context)
     }
 
     GST_ELEMENT_CLASS(parent_class)->set_context(element, context);
+}
+
+static GstFlowReturn transform(GstBaseTransform* base, GstBuffer* inbuf, GstBuffer* outbuf)
+{
+    WebKitMediaCommonEncryptionDecrypt* self = WEBKIT_MEDIA_CENC_DECRYPT(base);
+    WebKitMediaCommonEncryptionDecryptPrivate* priv = WEBKIT_MEDIA_CENC_DECRYPT_GET_PRIVATE(self);
+    WebKitMediaCommonEncryptionDecryptClass* klass = WEBKIT_MEDIA_CENC_DECRYPT_GET_CLASS(self);
+
+    if (!klass->decrypt2) {
+        GST_ERROR_OBJECT(self, "!klass->decrypt2");
+        return GST_FLOW_NOT_SUPPORTED;
+    }
+
+    Locker locker { priv->lock };
+
+    if (priv->isFlushing) {
+        GST_DEBUG_OBJECT(self, "Decryption aborted because of flush");
+        return GST_FLOW_FLUSHING;
+    }
+
+    if (!priv->cdmProxy) {
+        priv->condition.waitFor(priv->lock, MaxSecondsToWaitForCDMProxy, [priv] {
+            return priv->isFlushing || priv->cdmProxy;
+        });
+
+        if (priv->isFlushing) {
+            GST_DEBUG_OBJECT(self, "Decryption aborted because of flush");
+            return GST_FLOW_FLUSHING;
+        }
+
+        if (!priv->cdmProxy) {
+            GST_ERROR_OBJECT(self, "CDMProxy was not retrieved in time");
+            return GST_FLOW_NOT_SUPPORTED;
+        }
+    }
+
+    auto scopeExit = makeScopeExit([priv] {
+        priv->decryptionState = DecryptionState::Idle;
+    });
+
+    ASSERT(priv->decryptionState == DecryptionState::Idle);
+    priv->decryptionState = DecryptionState::Decrypting;
+
+    bool didDecryptionSucceed;
+
+    {
+        DropLockForScope noLockScope { locker };
+        didDecryptionSucceed = klass->decrypt2(self, inbuf, outbuf);
+    }
+
+    if (priv->isFlushing || priv->decryptionState == DecryptionState::FlushPending) {
+        GST_DEBUG_OBJECT(self, "flushing, bailing out");
+        return GST_FLOW_FLUSHING;
+    }
+
+    if (!didDecryptionSucceed) {
+        GST_ELEMENT_ERROR(self, STREAM, DECRYPT, ("Decryption failed"), (nullptr));
+        return GST_FLOW_NOT_SUPPORTED;
+    }
+
+    return GST_FLOW_OK;
 }
 
 #endif // ENABLE(ENCRYPTED_MEDIA) && USE(GSTREAMER)

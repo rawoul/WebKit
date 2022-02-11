@@ -83,6 +83,9 @@ public:
 #if ENABLE(THUNDER)
         Thunder,
 #endif
+#if ENABLE(FBXCDM)
+        Fbxcdm,
+#endif
     };
     virtual ImplementationType implementationType() const = 0;
 

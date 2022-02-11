@@ -132,6 +132,7 @@ my (
     $offscreenCanvasSupport,
     $offscreenCanvasInWorkersSupport,
     $thunderSupport,
+    $fbxcdmSupport,
     $orientationEventsSupport,
     $overflowScrollingTouchSupport,
     $paymentRequestSupport,
@@ -418,6 +419,9 @@ my @features = (
 
     { option => "thunder", desc => "Toggle Thunder CDM support",
       define => "ENABLE_THUNDER", value => \$thunderSupport },
+
+    { option => "fbxcdm", desc => "Toggle Fbxcdm CDM support",
+      define => "ENABLE_FBXCDM", value => \$fbxcdmSupport },
 
     { option => "orientation-events", desc => "Toggle Orientation Events support",
       define => "ENABLE_ORIENTATION_EVENTS", value => \$orientationEventsSupport },

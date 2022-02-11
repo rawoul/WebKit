@@ -60,6 +60,7 @@ struct _WebKitMediaCommonEncryptionDecryptClass {
     const char* (*protectionSystemId)(WebKitMediaCommonEncryptionDecrypt*);
     bool (*cdmProxyAttached)(WebKitMediaCommonEncryptionDecrypt*, const RefPtr<WebCore::CDMProxy>&);
     bool (*decrypt)(WebKitMediaCommonEncryptionDecrypt*, GstBuffer* ivBuffer, GstBuffer* keyIDBuffer, GstBuffer* buffer, unsigned subsamplesCount, GstBuffer* subsamplesBuffer);
+    bool (*decrypt2)(WebKitMediaCommonEncryptionDecrypt*, GstBuffer* inbuf, GstBuffer* outbuf);
 };
 
 G_END_DECLS

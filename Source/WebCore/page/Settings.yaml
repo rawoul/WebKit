@@ -352,6 +352,7 @@ MediaKeysStorageDirectory:
   type: String
   defaultValue:
     WebCore:
+      "ENABLE(FBXCDM)": '"."_s'
       default: '{ }'
 
 MediaTypeOverride:

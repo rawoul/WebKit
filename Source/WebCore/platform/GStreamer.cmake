@@ -271,6 +271,23 @@ if (ENABLE_ENCRYPTED_MEDIA)
             platform/graphics/gstreamer/eme/WebKitThunderDecryptorGStreamer.cpp
         )
     endif ()
+
+    if (ENABLE_FBXCDM)
+        list(APPEND WebCore_SYSTEM_INCLUDE_DIRECTORIES
+            ${FBXCDM_INCLUDE_DIRS}
+        )
+
+        list(APPEND WebCore_LIBRARIES
+            ${FBXCDM_LIBRARIES}
+        )
+
+        list(APPEND WebCore_SOURCES
+            platform/graphics/gstreamer/eme/CDMProxyFbxcdm.cpp
+            platform/graphics/gstreamer/eme/CDMFbxcdm.cpp
+            platform/graphics/gstreamer/eme/FbxcdmClientxx.cpp
+            platform/graphics/gstreamer/eme/gstfbxcdm.cpp
+        )
+    endif ()
 endif ()
 
 if (USE_CAIRO)
