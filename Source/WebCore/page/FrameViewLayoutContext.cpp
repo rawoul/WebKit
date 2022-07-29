@@ -96,7 +96,7 @@ static bool isObjectAncestorContainerOf(RenderElement& ancestor, RenderElement& 
     return false;
 }
 
-#ifndef NDEBUG
+#if ENABLE(TREE_DEBUGGING)
 class RenderTreeNeedsLayoutChecker {
 public :
     RenderTreeNeedsLayoutChecker(const RenderElement& layoutRoot)
@@ -251,7 +251,7 @@ void FrameViewLayoutContext::performLayout()
         ScriptDisallowedScope::InMainThread scriptDisallowedScope;
         SubtreeLayoutStateMaintainer subtreeLayoutStateMaintainer(subtreeLayoutRoot());
         RenderView::RepaintRegionAccumulator repaintRegionAccumulator(renderView());
-#ifndef NDEBUG
+#if ENABLE(TREE_DEBUGGING)
         RenderTreeNeedsLayoutChecker checker(*layoutRoot);
 #endif
         layoutRoot->layout();
