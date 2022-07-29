@@ -19,3 +19,5 @@ install(FILES ${JavaScriptCore_INSTALLED_HEADERS}
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/wpe-webkit-${WPE_API_VERSION}/jsc"
     COMPONENT "Development"
 )
+
+target_compile_options(JavaScriptCore PRIVATE "$<$<NOT:$<CONFIG:Debug>>:-O2>")
