@@ -94,7 +94,7 @@ void CacheStorageEngineConnection::caches(WebCore::ClientOrigin&& origin, uint64
         return callback(makeUnexpected(WebCore::DOMCacheEngine::Error::Internal));
 
     Engine::retrieveCaches(*session, WTFMove(origin), updateCounter, [callback = WTFMove(callback), origin, sessionID = this->sessionID()](auto&& result) mutable {
-        CACHE_STORAGE_RELEASE_LOG_FUNCTION_IN_CALLBACK("caches", "caches size is %lu", [](const auto& value) { return value.infos.size(); });
+        CACHE_STORAGE_RELEASE_LOG_FUNCTION_IN_CALLBACK("caches", "caches size is %zu", [](const auto& value) { return value.infos.size(); });
         callback(WTFMove(result));
     });
 }
@@ -107,7 +107,7 @@ void CacheStorageEngineConnection::retrieveRecords(uint64_t cacheIdentifier, Web
         return callback(makeUnexpected(WebCore::DOMCacheEngine::Error::Internal));
 
     Engine::retrieveRecords(*session, cacheIdentifier, WTFMove(options), [callback = WTFMove(callback), sessionID = this->sessionID()](auto&& result) mutable {
-        CACHE_STORAGE_RELEASE_LOG_FUNCTION_IN_CALLBACK("retrieveRecords", "records size is %lu", [](const auto& value) { return value.size(); });
+        CACHE_STORAGE_RELEASE_LOG_FUNCTION_IN_CALLBACK("retrieveRecords", "records size is %zu", [](const auto& value) { return value.size(); });
         callback(WTFMove(result));
     });
 }
@@ -120,20 +120,20 @@ void CacheStorageEngineConnection::deleteMatchingRecords(uint64_t cacheIdentifie
         return callback(makeUnexpected(WebCore::DOMCacheEngine::Error::Internal));
 
     Engine::deleteMatchingRecords(*session, cacheIdentifier, WTFMove(request), WTFMove(options), [callback = WTFMove(callback), sessionID = this->sessionID()](auto&& result) mutable {
-        CACHE_STORAGE_RELEASE_LOG_FUNCTION_IN_CALLBACK("deleteMatchingRecords", "deleted %lu records",  [](const auto& value) { return value.size(); });
+        CACHE_STORAGE_RELEASE_LOG_FUNCTION_IN_CALLBACK("deleteMatchingRecords", "deleted %zu records",  [](const auto& value) { return value.size(); });
         callback(WTFMove(result));
     });
 }
 
 void CacheStorageEngineConnection::putRecords(uint64_t cacheIdentifier, Vector<Record>&& records, RecordIdentifiersCallback&& callback)
 {
-    CACHE_STORAGE_RELEASE_LOG("putRecords in cache %" PRIu64 ", %lu records", cacheIdentifier, records.size());
+    CACHE_STORAGE_RELEASE_LOG("putRecords in cache %" PRIu64 ", %zu records", cacheIdentifier, records.size());
     auto* session = m_connection.networkSession();
     if (!session)
         return callback(makeUnexpected(WebCore::DOMCacheEngine::Error::Internal));
 
     Engine::putRecords(*session, cacheIdentifier, WTFMove(records), [callback = WTFMove(callback), sessionID = this->sessionID()](auto&& result) mutable {
-        CACHE_STORAGE_RELEASE_LOG_FUNCTION_IN_CALLBACK("putRecords", "put %lu records",  [](const auto& value) { return value.size(); });
+        CACHE_STORAGE_RELEASE_LOG_FUNCTION_IN_CALLBACK("putRecords", "put %zu records",  [](const auto& value) { return value.size(); });
         callback(WTFMove(result));
     });
 }

@@ -6390,7 +6390,7 @@ bool CSSPropertyParser::consumeListStyleShorthand(bool important)
     RefPtr<CSSValue> parsedPosition;
     RefPtr<CSSValue> parsedImage;
     RefPtr<CSSValue> parsedType;
-    unsigned noneCount = 0;
+    int noneCount = 0;
 
     while (!m_range.atEnd()) {
         if (m_range.peek().id() == CSSValueNone) {

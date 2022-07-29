@@ -39,7 +39,7 @@ static const uint8_t* copyBuffer(const uint8_t* buffer, size_t bufferSize)
 {
     uint8_t* bufferCopy;
     if (!tryFastMalloc(bufferSize).getValue(bufferCopy)) {
-        RELEASE_LOG_FAULT(IPC, "Decoder::copyBuffer: tryFastMalloc(%lu) failed", bufferSize);
+        RELEASE_LOG_FAULT(IPC, "Decoder::copyBuffer: tryFastMalloc(%zu) failed", bufferSize);
         return nullptr;
     }
 
@@ -51,7 +51,7 @@ std::unique_ptr<Decoder> Decoder::create(const uint8_t* buffer, size_t bufferSiz
 {
     ASSERT(buffer);
     if (UNLIKELY(!buffer)) {
-        RELEASE_LOG_FAULT(IPC, "Decoder::create() called with a null buffer (bufferSize: %lu)", bufferSize);
+        RELEASE_LOG_FAULT(IPC, "Decoder::create() called with a null buffer (bufferSize: %zu)", bufferSize);
         return nullptr;
     }
     return Decoder::create(copyBuffer(buffer, bufferSize), bufferSize, [](const uint8_t* ptr, size_t) { fastFree(const_cast<uint8_t*>(ptr)); }, WTFMove(attachments)); // NOLINT
@@ -62,7 +62,7 @@ std::unique_ptr<Decoder> Decoder::create(const uint8_t* buffer, size_t bufferSiz
     ASSERT(bufferDeallocator);
     ASSERT(buffer);
     if (UNLIKELY(!buffer)) {
-        RELEASE_LOG_FAULT(IPC, "Decoder::create() called with a null buffer (bufferSize: %lu)", bufferSize);
+        RELEASE_LOG_FAULT(IPC, "Decoder::create() called with a null buffer (bufferSize: %zu)", bufferSize);
         return nullptr;
     }
     auto decoder = std::unique_ptr<Decoder>(new Decoder(buffer, bufferSize, WTFMove(bufferDeallocator), WTFMove(attachments)));

@@ -329,7 +329,7 @@ void FontCache::purgeInactiveFontData(unsigned purgeCount)
             keysToRemove.uncheckedAppend(entry.key);
     }
 
-    LOG(Fonts, " removing %lu keys", keysToRemove.size());
+    LOG(Fonts, " removing %zu keys", keysToRemove.size());
 
     for (auto& key : keysToRemove)
         m_fontDataCaches->platformData.remove(key);

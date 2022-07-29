@@ -680,7 +680,7 @@ inline size_t find(const CharacterType* characters, unsigned length, CharacterTy
         if (index >= length)
             return notFound;
         auto* result = reinterpret_cast<const CharacterType*>(find8(bitwise_cast<const uint8_t*>(characters + index), matchCharacter, length - index));
-        ASSERT(!result || (result - characters) >= index);
+        ASSERT(!result || (result - characters) >= static_cast<ptrdiff_t>(index));
         if (result)
             return result - characters;
         return notFound;
@@ -690,7 +690,7 @@ inline size_t find(const CharacterType* characters, unsigned length, CharacterTy
         if (index >= length)
             return notFound;
         auto* result = reinterpret_cast<const CharacterType*>(find16(bitwise_cast<const uint16_t*>(characters + index), matchCharacter, length - index));
-        ASSERT(!result || (result - characters) >= index);
+        ASSERT(!result || (result - characters) >= static_cast<ptrdiff_t>(index));
         if (result)
             return result - characters;
         return notFound;

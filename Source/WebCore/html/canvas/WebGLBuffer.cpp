@@ -68,7 +68,7 @@ bool WebGLBuffer::associateBufferDataImpl(const void* data, GCGLsizeiptr byteLen
 
     switch (m_target) {
     case GraphicsContextGL::ELEMENT_ARRAY_BUFFER:
-        if (byteLength > std::numeric_limits<unsigned>::max())
+        if (byteLength > std::numeric_limits<int>::max())
             return false;
         m_byteLength = byteLength;
         clearCachedMaxIndices();

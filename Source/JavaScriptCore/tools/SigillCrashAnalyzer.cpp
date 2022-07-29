@@ -259,7 +259,7 @@ auto SigillCrashAnalyzer::analyze(SignalContext& context) -> CrashSource
 
         // We know it's safe to read the word at the PC because we're handling a SIGILL.
         // Otherwise, we would have crashed with a SIGBUS instead.
-        uint32_t wordAtPC = *reinterpret_cast<uint32_t*>(pc);
+        uint32_t wordAtPC __attribute__((unused)) = *reinterpret_cast<uint32_t*>(pc);
         log("instruction bits at pc %p is: 0x%08x", pc, wordAtPC);
 #endif
 

@@ -258,7 +258,6 @@ bool ExtensionsGLOpenGLES::platformSupportsExtension(const String& name)
 #if HAVE(OPENGL_ES_3)
         auto majorVersion = []() {
             // Loosely inspired by GLContext::version()
-            GLint version = 0;
             auto versionString = String::fromLatin1(reinterpret_cast<const char*>(::glGetString(GL_VERSION)));
             Vector<String> versionStringComponents = versionString.split(' ');
 

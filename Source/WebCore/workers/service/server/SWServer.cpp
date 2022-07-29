@@ -668,7 +668,7 @@ void SWServer::terminatePreinstallationWorker(SWServerWorker& worker)
 
 void SWServer::didFinishInstall(const std::optional<ServiceWorkerJobDataIdentifier>& jobDataIdentifier, SWServerWorker& worker, bool wasSuccessful)
 {
-    RELEASE_LOG(ServiceWorker, "%p - SWServer::didFinishInstall: Finished install for service worker %llu, success is %d", this, worker.identifier().toUInt64(), wasSuccessful);
+    RELEASE_LOG(ServiceWorker, "%p - SWServer::didFinishInstall: Finished install for service worker %" PRIu64 ", success is %d", this, worker.identifier().toUInt64(), wasSuccessful);
 
     if (!jobDataIdentifier)
         return;
@@ -682,7 +682,7 @@ void SWServer::didFinishInstall(const std::optional<ServiceWorkerJobDataIdentifi
 
 void SWServer::didFinishActivation(SWServerWorker& worker)
 {
-    RELEASE_LOG(ServiceWorker, "%p - SWServer::didFinishActivation: Finished activation for service worker %llu", this, worker.identifier().toUInt64());
+    RELEASE_LOG(ServiceWorker, "%p - SWServer::didFinishActivation: Finished activation for service worker %" PRIu64, this, worker.identifier().toUInt64());
 
     auto* registration = worker.registration();
     if (!registration)
@@ -993,7 +993,7 @@ void SWServer::fireInstallEvent(SWServerWorker& worker)
         return;
     }
 
-    RELEASE_LOG(ServiceWorker, "%p - SWServer::fireInstallEvent on worker %llu", this, worker.identifier().toUInt64());
+    RELEASE_LOG(ServiceWorker, "%p - SWServer::fireInstallEvent on worker %" PRIu64, this, worker.identifier().toUInt64());
     contextConnection->fireInstallEvent(worker.identifier());
 }
 
@@ -1005,7 +1005,7 @@ void SWServer::fireActivateEvent(SWServerWorker& worker)
         return;
     }
 
-    RELEASE_LOG(ServiceWorker, "%p - SWServer::fireActivateEvent on worker %llu", this, worker.identifier().toUInt64());
+    RELEASE_LOG(ServiceWorker, "%p - SWServer::fireActivateEvent on worker %" PRIu64, this, worker.identifier().toUInt64());
     contextConnection->fireActivateEvent(worker.identifier());
 }
 

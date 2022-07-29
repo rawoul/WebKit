@@ -744,6 +744,9 @@ bool MediaControlsHost::showMediaControlsContextMenu(HTMLElement& target, String
 
     return true;
 #else // USE(UICONTEXTMENU) || (ENABLE(CONTEXT_MENUS) && USE(ACCESSIBILITY_CONTEXT_MENUS))
+    UNUSED_PARAM(target);
+    UNUSED_PARAM(optionsJSONString);
+    UNUSED_PARAM(callback);
     return false;
 #endif
 }
