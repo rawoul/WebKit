@@ -324,6 +324,7 @@ set(WTF_PUBLIC_HEADERS
     WTFConfig.h
     WTFSemaphore.h
     WallTime.h
+    WaylandDisplay.h
     WeakHashCountedSet.h
     WeakHashMap.h
     WeakHashSet.h

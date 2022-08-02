@@ -136,6 +136,14 @@
 #include <wpe/extensions/video-plane-display-dmabuf.h>
 #endif
 
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+#include "PlatformDisplayLibWPE.h"
+#include "fbx-foreign-surface-unstable-v1-client-protocol.h"
+#define GST_USE_UNSTABLE_API
+#include <gst/wayland/wayland.h>
+#include <wtf/WaylandDisplay.h>
+#endif
+
 GST_DEBUG_CATEGORY(webkit_media_player_debug);
 #define GST_CAT_DEFAULT webkit_media_player_debug
 
@@ -272,6 +280,33 @@ MediaPlayerPrivateGStreamer::~MediaPlayerPrivateGStreamer()
 
     m_player = nullptr;
     m_notifier->invalidate();
+
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+    if (m_fbx_foreign_surface) {
+        fbx_foreign_surface_destroy(m_fbx_foreign_surface);
+        m_fbx_foreign_surface = nullptr;
+    }
+
+    if (m_wl_surface) {
+        wl_surface_destroy(m_wl_surface);
+        m_wl_surface = nullptr;
+    }
+
+    if (m_fbx_fsm) {
+        fbx_foreign_surface_manager_destroy(m_fbx_fsm);
+        m_fbx_fsm = nullptr;
+    }
+
+    if (m_wl_compositor) {
+        wl_compositor_destroy(m_wl_compositor);
+        m_wl_compositor = nullptr;
+    }
+
+    if (m_wl_event_queue) {
+        wl_event_queue_destroy(m_wl_event_queue);
+        m_wl_event_queue = nullptr;
+    }
+#endif
 }
 
 bool MediaPlayerPrivateGStreamer::isAvailable()
@@ -1088,12 +1123,16 @@ void MediaPlayerPrivateGStreamer::videoSinkCapsChanged(GstPad* videoSinkPad)
     ASSERT(!isMainThread());
     GST_DEBUG_OBJECT(videoSinkPad, "Received new caps: %" GST_PTR_FORMAT, caps.get());
 
+#if USE(GSTREAMER_HOLEPUNCH)
+    GST_DEBUG_OBJECT(videoSinkPad, "NOT Ignoring notify::caps when using holepunch");
+#else
     if (!hasFirstVideoSampleReachedSink()) {
         // We want to wait for the sink to receive the first buffer before emitting dimensions, since only by then we
         // are guaranteed that any potential tag event with a rotation has been handled.
         GST_DEBUG_OBJECT(videoSinkPad, "Ignoring notify::caps until the first buffer reaches the sink.");
         return;
     }
+#endif
 
     RunLoop::main().dispatch([weakThis = WeakPtr { *this }, this, caps = WTFMove(caps)] {
         if (!weakThis)
@@ -1527,6 +1566,92 @@ void MediaPlayerPrivateGStreamer::handleStreamCollectionMessage(GstMessage* mess
     GST_DEBUG_OBJECT(pipeline(), "Updating tracks DONE");
 }
 
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+const struct fbx_foreign_surface_listener MediaPlayerPrivateGStreamer::s_foreign_surface_listener = {
+    .id = [](void* data, struct fbx_foreign_surface*, uint32_t id) {
+        auto* p = static_cast<MediaPlayerPrivateGStreamer*>(data);
+        p->m_fbx_foreign_surface_id = id;
+        p->updateHolePosition();
+    },
+    .imported = [](void* data, struct fbx_foreign_surface*) {
+        auto* p = static_cast<MediaPlayerPrivateGStreamer*>(data);
+        GstVideoOverlay* overlay = p->videoOverlay();
+        if (overlay)
+            gst_video_overlay_expose(overlay);
+    },
+};
+
+bool MediaPlayerPrivateGStreamer::handleNeedContextMessageWaylandDisplay(GstMessage* message)
+{
+    if (m_fbx_foreign_surface)
+        return true;
+
+    struct wl_display *display = WaylandDisplay::singleton();
+    struct wl_display *wrapped_display = (struct wl_display *)wl_proxy_create_wrapper(display);
+
+    m_wl_event_queue = wl_display_create_queue(display);
+    wl_proxy_set_queue((struct wl_proxy *)wrapped_display, m_wl_event_queue);
+
+    struct wl_registry *wl_registry = wl_display_get_registry(wrapped_display);
+    wl_proxy_wrapper_destroy(wrapped_display);
+
+    struct wl_registry_listener registryListener = {
+        .global = [](void* data, struct wl_registry* registry, uint32_t name, const char* interface, uint32_t) {
+            auto* p = static_cast<MediaPlayerPrivateGStreamer*>(data);
+
+            if (!std::strcmp(interface, wl_compositor_interface.name))
+                p->m_wl_compositor = static_cast<struct wl_compositor*>(wl_registry_bind(registry, name, &wl_compositor_interface, 4));
+            else if (!std::strcmp(interface, fbx_foreign_surface_manager_interface.name))
+                p->m_fbx_fsm = static_cast<struct fbx_foreign_surface_manager*>(wl_registry_bind(registry, name, &fbx_foreign_surface_manager_interface, 1));
+        },
+        .global_remove = [](void*, struct wl_registry*, uint32_t) {},
+    };
+
+    wl_registry_add_listener(wl_registry, &registryListener, this);
+    wl_display_roundtrip_queue(display, m_wl_event_queue);
+    wl_registry_destroy(wl_registry);
+
+    if (!m_wl_compositor) {
+        GST_ERROR_OBJECT(pipeline(), "compositor interface not available");
+        return false;
+    }
+
+    if (!m_fbx_fsm) {
+        GST_ERROR_OBJECT(pipeline(), "foreign surface interface not available");
+        return false;
+    }
+
+    // move foreign surface interface to the main thread queue
+    // to ensure foreign surface events will be dispatched
+    wl_proxy_set_queue((struct wl_proxy *)m_fbx_fsm, nullptr);
+
+    m_wl_surface = wl_compositor_create_surface(m_wl_compositor);
+    m_fbx_foreign_surface = fbx_foreign_surface_manager_export_surface(m_fbx_fsm, m_wl_surface);
+    fbx_foreign_surface_add_listener(m_fbx_foreign_surface, &s_foreign_surface_listener, this);
+
+    GRefPtr<GstContext> context = adoptGRef(gst_wl_display_handle_context_new(display));
+    gst_element_set_context(GST_ELEMENT(GST_MESSAGE_SRC(message)), context.get());
+
+    GstVideoOverlay* overlay = videoOverlay();
+    if (!overlay) {
+        GST_ERROR_OBJECT(pipeline(), "failed to create video overlay");
+        return false;
+    }
+
+    gst_video_overlay_set_window_handle(overlay, (guintptr)m_wl_surface);
+
+    IntSize size = { 1280, 720 };
+    Locker lock { m_contentRectLock };
+    if (!m_contentRect.isEmpty())
+        size = m_contentRect.size();
+
+    if (!gst_video_overlay_set_render_rectangle(overlay, 0, 0, size.width(), size.height()))
+        GST_ERROR("gst_video_overlay_set_render_rectangle failed");
+
+    return true;
+}
+#endif
+
 bool MediaPlayerPrivateGStreamer::handleNeedContextMessage(GstMessage* message)
 {
     ASSERT(GST_MESSAGE_TYPE(message) == GST_MESSAGE_NEED_CONTEXT);
@@ -1566,6 +1691,12 @@ bool MediaPlayerPrivateGStreamer::handleNeedContextMessage(GstMessage* message)
         return false;
     }
 #endif // ENABLE(ENCRYPTED_MEDIA)
+
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+    if (!g_strcmp0(contextType, GST_WL_DISPLAY_HANDLE_CONTEXT_TYPE)) {
+        return handleNeedContextMessageWaylandDisplay(message);
+    }
+#endif
 
     GST_DEBUG_OBJECT(pipeline(), "Unhandled %s need-context message for %s", contextType, GST_MESSAGE_SRC_NAME(message));
     return false;
@@ -3915,27 +4046,122 @@ GstElement* MediaPlayerPrivateGStreamer::createVideoSinkGL()
 #endif // USE(GSTREAMER_GL)
 
 #if USE(GSTREAMER_HOLEPUNCH)
-static void setRectangleToVideoSink(GstElement* videoSink, const IntRect& rect)
-{
-    // Here goes the platform-dependant code to set to the videoSink the size
-    // and position of the video rendering window. Mark them unused as default.
-    UNUSED_PARAM(videoSink);
-    UNUSED_PARAM(rect);
-}
-
 class GStreamerHolePunchClient : public TextureMapperPlatformLayerBuffer::HolePunchClient {
 public:
-    GStreamerHolePunchClient(GRefPtr<GstElement>&& videoSink) : m_videoSink(WTFMove(videoSink)) { };
-    void setVideoRectangle(const IntRect& rect) final { setRectangleToVideoSink(m_videoSink.get(), rect); }
+    GStreamerHolePunchClient(WeakPtr<MediaPlayerPrivateGStreamer>&& player);
+    virtual ~GStreamerHolePunchClient() = default;
+
+    void setVideoRectangle(const IntRect& rect) final;
+
 private:
-    GRefPtr<GstElement> m_videoSink;
+    GStreamerHolePunchClient() = delete;
+    GStreamerHolePunchClient(const GStreamerHolePunchClient&) = delete;
+    void operator=(const GStreamerHolePunchClient&) = delete;
+    GStreamerHolePunchClient(GStreamerHolePunchClient&&) = delete;
+    GStreamerHolePunchClient& operator=(GStreamerHolePunchClient&&) = delete;
+
+    WeakPtr<MediaPlayerPrivateGStreamer> m_playerPrivateGst;
 };
+
+GStreamerHolePunchClient::GStreamerHolePunchClient(WeakPtr<MediaPlayerPrivateGStreamer>&& player)
+    : m_playerPrivateGst(WTFMove(player))
+{
+}
+
+void GStreamerHolePunchClient::setVideoRectangle(const IntRect& rect)
+{
+    callOnMainThreadAndWait([&] {
+        if (m_playerPrivateGst)
+            m_playerPrivateGst->setVideoRectangle(rect);
+    });
+}
+
+void MediaPlayerPrivateGStreamer::setVideoRectangle(const IntRect& rect)
+{
+    FloatSize videoSize = naturalSize();
+    if (videoSize.isEmpty())
+        return;
+
+    float scale = m_player ? m_player->playerContentsScale() : 1.0f;
+    FloatRect scaledRect = rect;
+    if (scale != 1.0f)
+        scaledRect.scale(1.0 / scale);
+
+    FloatRect contentRect;
+    float rectAspectRatio = scaledRect.size().aspectRatio();
+    float videoAspectRatio = videoSize.aspectRatio();
+
+    if (rectAspectRatio < videoAspectRatio) {
+        contentRect.setWidth(scaledRect.width());
+        contentRect.setHeight(scaledRect.width() / videoAspectRatio);
+        contentRect.setX(scaledRect.x());
+        contentRect.setY(scaledRect.y() + (scaledRect.height() - contentRect.height()) / 2.f);
+    } else {
+        contentRect.setWidth(scaledRect.height() * videoAspectRatio);
+        contentRect.setHeight(scaledRect.height());
+        contentRect.setX(scaledRect.x() + (scaledRect.width() - contentRect.width()) / 2.f);
+        contentRect.setY(scaledRect.y());
+    }
+
+    IntRect videoRect = enclosingIntRect(contentRect);
+    if (videoRect == m_contentRect)
+        return;
+
+    GST_INFO_OBJECT(pipeline(), "video: %fx%f, rect: %ux%u%+d%+d, scale: %f -> bounds: %fx%f%+f%+f, content: %ux%u%+d%+d",
+        videoSize.width(), videoSize.height(),
+        rect.width(), rect.height(), rect.x(), rect.y(), scale,
+        scaledRect.width(), scaledRect.height(), scaledRect.x(), scaledRect.y(),
+        videoRect.width(), videoRect.height(), videoRect.x(), videoRect.y());
+
+    Locker lock { m_contentRectLock };
+    m_contentRect = videoRect;
+
+    GstVideoOverlay* overlay = videoOverlay();
+    if (overlay && !m_contentRect.isEmpty()) {
+        if (!gst_video_overlay_set_render_rectangle(overlay,
+                    0, 0, m_contentRect.width(), m_contentRect.height()))
+            GST_ERROR_OBJECT(pipeline(), "gst_video_overlay_set_render_rectangle failed");
+    }
+
+    updateHolePosition();
+}
+
+void MediaPlayerPrivateGStreamer::updateHolePosition()
+{
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+    if (!m_fbx_foreign_surface_id)
+        return;
+
+    if (!m_wpeVideoForeignSurfaceSource) {
+        auto& sharedDisplay = PlatformDisplay::sharedDisplay();
+        if (is<PlatformDisplayLibWPE>(sharedDisplay))
+            m_wpeVideoForeignSurfaceSource.reset(wpe_video_foreign_surface_source_create(downcast<PlatformDisplayLibWPE>(sharedDisplay).backend(), m_fbx_foreign_surface_id));
+    }
+
+    wpe_video_foreign_surface_source_set_position(m_wpeVideoForeignSurfaceSource.get(), m_contentRect.x(), m_contentRect.y());
+#endif
+}
 
 GstElement* MediaPlayerPrivateGStreamer::createHolePunchVideoSink()
 {
-    // Here goes the platform-dependant code to create the videoSink. As a default
-    // we use a fakeVideoSink so nothing is drawn to the page.
-    GstElement* videoSink =  makeGStreamerElement("fakevideosink", nullptr);
+    GstElement* videoSink = nullptr;
+
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+    if (GRefPtr<GstElementFactory> elementFactory = adoptGRef(gst_element_factory_find("ismdvidrendbin"))) {
+        videoSink = makeGStreamerElement("ismdvidrendbin", nullptr);
+    } else if (GRefPtr<GstElementFactory> elementFactory = adoptGRef(gst_element_factory_find("waylandsink"))) {
+        videoSink = makeGStreamerElement("waylandsink", nullptr);
+        if (videoSink)
+            g_object_set(videoSink, "enable-last-sample", FALSE, nullptr);
+    } else
+#endif
+    {
+        // As a default we use a fakeVideoSink so nothing is drawn to the page.
+        videoSink = makeGStreamerElement("fakevideosink", nullptr);
+    }
+
+    if (!videoSink)
+        GST_ERROR_OBJECT(pipeline(), "failed to create holepunch video sink");
 
     return videoSink;
 }
@@ -3943,11 +4169,11 @@ GstElement* MediaPlayerPrivateGStreamer::createHolePunchVideoSink()
 void MediaPlayerPrivateGStreamer::pushNextHolePunchBuffer()
 {
     auto proxyOperation =
-        [this](TextureMapperPlatformLayerProxyGL& proxy)
-        {
+        [this](TextureMapperPlatformLayerProxyGL& proxy) {
             Locker locker { proxy.lock() };
             std::unique_ptr<TextureMapperPlatformLayerBuffer> layerBuffer = makeUnique<TextureMapperPlatformLayerBuffer>(0, m_size, TextureMapperGL::ShouldNotBlend, GL_DONT_CARE);
-            std::unique_ptr<GStreamerHolePunchClient> holePunchClient = makeUnique<GStreamerHolePunchClient>(m_videoSink.get());
+            WeakPtr<MediaPlayerPrivateGStreamer> playerPrivateGst(this);
+            std::unique_ptr<GStreamerHolePunchClient> holePunchClient = makeUnique<GStreamerHolePunchClient>(WTFMove(playerPrivateGst));
             layerBuffer->setHolePunchClient(WTFMove(holePunchClient));
             proxy.pushNextBuffer(WTFMove(layerBuffer));
         };
@@ -3960,7 +4186,7 @@ void MediaPlayerPrivateGStreamer::pushNextHolePunchBuffer()
     proxyOperation(*m_platformLayerProxy);
 #endif
 }
-#endif
+#endif // USE(GSTREAMER_HOLEPUNCH)
 
 GstElement* MediaPlayerPrivateGStreamer::createVideoSink()
 {

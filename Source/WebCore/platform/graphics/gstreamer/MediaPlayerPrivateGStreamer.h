@@ -74,11 +74,20 @@ typedef struct _GstMpegtsSection GstMpegtsSection;
 #include "CDMProxy.h"
 #endif
 
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+#include "fbx-foreign-surface-unstable-v1-client-protocol.h"
+#include <wayland-client.h>
+#endif
+
 typedef struct _GstStreamVolume GstStreamVolume;
 typedef struct _GstVideoInfo GstVideoInfo;
 
 #if USE(WPE_VIDEO_PLANE_DISPLAY_DMABUF)
 struct wpe_video_plane_display_dmabuf_source;
+#endif
+
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+struct wpe_video_foreign_surface_source;
 #endif
 
 namespace WebCore {
@@ -226,6 +235,7 @@ public:
     // Append pipeline interface
     // FIXME: Use the client interface pattern, AppendPipeline does not need the full interface to this class just for this function.
     bool handleNeedContextMessage(GstMessage*);
+    bool handleNeedContextMessageWaylandDisplay(GstMessage*);
 
     void handleStreamCollectionMessage(GstMessage*);
     void handleMessage(GstMessage*);
@@ -251,6 +261,10 @@ public:
     // to avoid deadlocks from threads in the playback pipeline waiting for the main thread.
     AbortableTaskQueue& sinkTaskQueue() { return m_sinkTaskQueue; }
 
+#if USE(GSTREAMER_HOLEPUNCH)
+    void setVideoRectangle(const IntRect &rect);
+#endif
+
 protected:
     enum MainThreadNotification {
         VideoChanged = 1 << 0,
@@ -273,6 +287,13 @@ protected:
     GstElement* createHolePunchVideoSink();
     void pushNextHolePunchBuffer();
     bool shouldIgnoreIntrinsicSize() final { return true; }
+    void updateHolePosition();
+
+    GstVideoOverlay* videoOverlay() const
+    {
+        GstElement* pipeline = m_pipeline.get();
+        return (pipeline && GST_IS_VIDEO_OVERLAY(pipeline)) ? GST_VIDEO_OVERLAY(pipeline) : nullptr;
+    }
 #endif
 
 #if USE(TEXTURE_MAPPER_DMABUF)
@@ -368,6 +389,11 @@ protected:
     GRefPtr<GstElement> m_videoSink;
     GRefPtr<GstElement> m_pipeline;
     IntSize m_size;
+
+#if USE(GSTREAMER_HOLEPUNCH)
+    IntRect m_contentRect;
+    Lock m_contentRectLock;
+#endif
 
     MediaPlayer::ReadyState m_readyState { MediaPlayer::ReadyState::HaveNothing };
     mutable MediaPlayer::NetworkState m_networkState { MediaPlayer::NetworkState::Empty };
@@ -605,6 +631,9 @@ private:
 #if USE(WPE_VIDEO_PLANE_DISPLAY_DMABUF)
     GUniquePtr<struct wpe_video_plane_display_dmabuf_source> m_wpeVideoPlaneDisplayDmaBuf;
 #endif
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+    GUniquePtr<struct wpe_video_foreign_surface_source> m_wpeVideoForeignSurfaceSource;
+#endif
 #if !RELEASE_LOG_DISABLED
     Ref<const Logger> m_logger;
     const void* m_logIdentifier;
@@ -621,6 +650,16 @@ private:
     AbortableTaskQueue m_sinkTaskQueue;
 
     bool m_didTryToRecoverPlayingState { false };
+
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+    struct wl_event_queue *m_wl_event_queue { nullptr };
+    struct wl_compositor* m_wl_compositor { nullptr };
+    struct fbx_foreign_surface_manager* m_fbx_fsm { nullptr };
+    struct wl_surface* m_wl_surface { nullptr };
+    struct fbx_foreign_surface* m_fbx_foreign_surface { nullptr };
+    static const struct fbx_foreign_surface_listener s_foreign_surface_listener;
+    uint32_t m_fbx_foreign_surface_id { 0 };
+#endif
 };
 
 }

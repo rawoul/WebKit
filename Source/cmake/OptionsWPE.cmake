@@ -27,6 +27,8 @@ find_package(Threads REQUIRED)
 find_package(WebP REQUIRED COMPONENTS demux)
 find_package(WPE REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(Wayland REQUIRED)
+find_package(WaylandProtocols 1.12 REQUIRED)
 
 WEBKIT_OPTION_BEGIN()
 
@@ -246,7 +248,7 @@ if (ENABLE_WPE_QT_API)
     find_package(Qt5Test REQUIRED)
 endif ()
 
-if (ENABLE_WPE_QT_API OR USE_WPE_VIDEO_PLANE_DISPLAY_DMABUF)
+if (ENABLE_WPE_QT_API OR USE_WPE_VIDEO_PLANE_DISPLAY_DMABUF OR USE_WPE_VIDEO_FOREIGN_SURFACE)
     find_package(WPEBackend_fdo 1.5.0 REQUIRED)
 endif ()
 

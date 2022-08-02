@@ -40,6 +40,10 @@
 #include <wpe/extensions/video-plane-display-dmabuf.h>
 #endif
 
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+#include <wpe/extensions/video-foreign-surface.h>
+#endif
+
 namespace WTF {
 
 WTF_DEFINE_GPTR_DELETER(GstStructure, gst_structure_free)
@@ -58,6 +62,10 @@ WTF_DEFINE_GPTR_DELETER(GstSDPMessage, gst_sdp_message_free)
 
 #if defined(BUILDING_WebCore) && USE(WPE_VIDEO_PLANE_DISPLAY_DMABUF)
 WTF_DEFINE_GPTR_DELETER(struct wpe_video_plane_display_dmabuf_source, wpe_video_plane_display_dmabuf_source_destroy)
+#endif
+
+#if USE(WPE_VIDEO_FOREIGN_SURFACE)
+WTF_DEFINE_GPTR_DELETER(struct wpe_video_foreign_surface_source, wpe_video_foreign_surface_source_destroy)
 #endif
 }
 

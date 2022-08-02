@@ -126,6 +126,7 @@ if (ENABLE_VIDEO OR ENABLE_WEB_AUDIO)
             ${GSTREAMER_ALLOCATORS_INCLUDE_DIRS}
             ${GSTREAMER_APP_INCLUDE_DIRS}
             ${GSTREAMER_PBUTILS_INCLUDE_DIRS}
+            ${GSTREAMER_WAYLAND_INCLUDE_DIRS}
         )
 
         list(APPEND WebCore_LIBRARIES
@@ -135,6 +136,7 @@ if (ENABLE_VIDEO OR ENABLE_WEB_AUDIO)
             ${GSTREAMER_LIBRARIES}
             ${GSTREAMER_PBUTILS_LIBRARIES}
             ${GSTREAMER_AUDIO_LIBRARIES}
+            ${GSTREAMER_WAYLAND_LIBRARIES}
         )
     endif ()
 
@@ -276,3 +278,18 @@ if (USE_CAIRO)
         platform/graphics/gstreamer/ImageGStreamerCairo.cpp
     )
 endif ()
+
+add_custom_command(
+    OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/fbx-foreign-surface-unstable-v1-client-protocol.h
+    MAIN_DEPENDENCY ${WAYLAND_PROTOCOLS_DATADIR}/unstable/fbx-foreign-surface/fbx-foreign-surface-unstable-v1.xml
+    COMMAND ${WAYLAND_SCANNER} client-header ${WAYLAND_PROTOCOLS_DATADIR}/unstable/fbx-foreign-surface/fbx-foreign-surface-unstable-v1.xml ${WebCore_DERIVED_SOURCES_DIR}/fbx-foreign-surface-unstable-v1-client-protocol.h
+    VERBATIM)
+
+add_custom_command(
+    OUTPUT ${WebCore_DERIVED_SOURCES_DIR}/fbx-foreign-surface-unstable-v1-client-protocol.c
+    MAIN_DEPENDENCY ${WAYLAND_PROTOCOLS_DATADIR}/unstable/fbx-foreign-surface/fbx-foreign-surface-unstable-v1.xml
+    DEPENDS ${WebCore_DERIVED_SOURCES_DIR}/fbx-foreign-surface-unstable-v1-client-protocol.h
+    COMMAND ${WAYLAND_SCANNER} private-code ${WAYLAND_PROTOCOLS_DATADIR}/unstable/fbx-foreign-surface/fbx-foreign-surface-unstable-v1.xml ${WebCore_DERIVED_SOURCES_DIR}/fbx-foreign-surface-unstable-v1-client-protocol.c
+    VERBATIM)
+
+list(APPEND WebCore_SOURCES ${WebCore_DERIVED_SOURCES_DIR}/fbx-foreign-surface-unstable-v1-client-protocol.c)

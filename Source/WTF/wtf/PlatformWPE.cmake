@@ -44,6 +44,8 @@ list(APPEND WTF_SOURCES
     unix/LoggingUnix.cpp
     unix/MemoryPressureHandlerUnix.cpp
     unix/UniStdExtrasUnix.cpp
+
+    WaylandDisplay.cpp
 )
 
 list(APPEND WTF_LIBRARIES

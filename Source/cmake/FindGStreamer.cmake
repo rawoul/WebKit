@@ -31,6 +31,7 @@
 #  gstreamer-rtp:        GSTREAMER_RTP_INCLUDE_DIRS and GSTREAMER_RTP_LIBRARIES
 #  gstreamer-sdp:        GSTREAMER_SDP_INCLUDE_DIRS and GSTREAMER_SDP_LIBRARIES
 #  gstreamer-webrtc:     GSTREAMER_WEBRTC_INCLUDE_DIRS and GSTREAMER_WEBRTC_LIBRARIES
+#  gstreamer-wayland:    GSTREAMER_WAYLAND_INCLUDE_DIRS and GSTREAMER_WAYLAND_LIBRARIES
 #
 # Copyright (C) 2012 Raphael Kubo da Costa <rakuco@webkit.org>
 #
@@ -124,6 +125,7 @@ FIND_GSTREAMER_COMPONENT(GSTREAMER_TRANSCODER gstreamer-transcoder-1.0 gsttransc
 FIND_GSTREAMER_COMPONENT(GSTREAMER_RTP gstreamer-rtp-1.0 gstrtp-1.0)
 FIND_GSTREAMER_COMPONENT(GSTREAMER_SDP gstreamer-sdp-1.0 gstsdp-1.0)
 FIND_GSTREAMER_COMPONENT(GSTREAMER_WEBRTC gstreamer-webrtc-1.0 gstwebrtc-1.0)
+FIND_GSTREAMER_COMPONENT(GSTREAMER_WAYLAND gstreamer-wayland-1.0 gstwayland-1.0)
 
 # ------------------------------------------------
 # 3. Process the COMPONENTS passed to FIND_PACKAGE
@@ -170,4 +172,6 @@ mark_as_advanced(
     GSTREAMER_FULL_LIBRARIES
     GSTREAMER_WEBRTC_INCLUDE_DIRS
     GSTREAMER_WEBRTC_LIBRARIES
+    GSTREAMER_WAYLAND_INCLUDE_DIRS
+    GSTREAMER_WAYLAND_LIBRARIES
 )
