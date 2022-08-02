@@ -38,6 +38,7 @@ class Q_DECL_EXPORT WPEQtView : public QQuickItem {
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(bool canGoBack READ canGoBack NOTIFY loadingChanged)
     Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY loadingChanged)
+    Q_PROPERTY(qreal zoomFactor READ zoomFactor WRITE setZoomFactor NOTIFY zoomFactorChanged)
     Q_ENUMS(LoadStatus)
 
 public:
@@ -61,6 +62,8 @@ public:
     bool canGoBack() const;
     bool isLoading() const;
     bool canGoForward() const;
+    qreal zoomFactor() const;
+    void setZoomFactor(qreal);
 
     WebKitWebView* webView() const;
 
@@ -78,6 +81,7 @@ Q_SIGNALS:
     void titleChanged();
     void loadingChanged(WPEQtViewLoadRequest* loadRequest);
     void loadProgressChanged();
+    void zoomFactorChanged();
 
 protected:
     bool errorOccured() const { return m_errorOccured; };
@@ -116,6 +120,7 @@ private:
     QUrl m_baseUrl;
     QSizeF m_size;
     qreal m_devicePixelRatio = 1.0;
+    qreal m_zoomFactor = 1.0;
     WPEQtViewBackend* m_backend { nullptr };
     bool m_errorOccured { false };
 };

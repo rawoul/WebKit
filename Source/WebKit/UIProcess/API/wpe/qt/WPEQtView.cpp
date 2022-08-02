@@ -136,6 +136,8 @@ void WPEQtView::createWebView()
     g_signal_connect(m_webView, "load-changed", G_CALLBACK(notifyLoadChangedCallback), this);
     g_signal_connect(m_webView, "load-failed", G_CALLBACK(notifyLoadFailedCallback), this);
 
+    webkit_web_view_set_zoom_level(m_webView, m_zoomFactor);
+
     if (!m_url.isEmpty())
         webkit_web_view_load_uri(m_webView, m_url.toString().toUtf8().constData());
     else if (!m_html.isEmpty())
@@ -361,6 +363,21 @@ void WPEQtView::goForward()
 {
     if (m_webView)
         webkit_web_view_go_forward(m_webView);
+}
+
+qreal WPEQtView::zoomFactor() const
+{
+    if (m_webView)
+        return webkit_web_view_get_zoom_level(m_webView);
+    return m_zoomFactor;
+}
+
+void WPEQtView::setZoomFactor(qreal factor)
+{
+    m_zoomFactor = factor;
+    if (m_webView)
+        webkit_web_view_set_zoom_level(m_webView, m_zoomFactor);
+    Q_EMIT zoomFactorChanged();
 }
 
 /*!
