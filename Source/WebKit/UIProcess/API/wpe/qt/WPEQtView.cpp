@@ -118,7 +118,7 @@ void WPEQtView::createWebView()
     }
 
     m_backend = backend.get();
-    auto* settings = webkit_settings_new_with_settings("enable-developer-extras", TRUE,
+    auto* settings = webkit_settings_new_with_settings(
         "enable-webgl", TRUE, "enable-mediasource", TRUE, nullptr);
     m_webView = WEBKIT_WEB_VIEW(g_object_new(WEBKIT_TYPE_WEB_VIEW,
         "backend", webkit_web_view_backend_new(m_backend->backend(), [](gpointer data) {
