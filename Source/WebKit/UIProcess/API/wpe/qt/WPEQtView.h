@@ -33,6 +33,7 @@ class Q_DECL_EXPORT WPEQtView : public QQuickItem {
     Q_OBJECT
     Q_DISABLE_COPY(WPEQtView)
     Q_PROPERTY(QUrl url READ url WRITE setUrl NOTIFY urlChanged)
+    Q_PROPERTY(QUrl icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(bool loading READ isLoading NOTIFY loadingChanged)
     Q_PROPERTY(int loadProgress READ loadProgress NOTIFY loadProgressChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
@@ -57,6 +58,7 @@ public:
 
     QUrl url() const;
     void setUrl(const QUrl&);
+    QUrl icon() const;
     int loadProgress() const;
     QString title() const;
     bool canGoBack() const;
@@ -78,6 +80,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void webViewCreated();
     void urlChanged();
+    void iconChanged();
     void titleChanged();
     void loadingChanged(WPEQtViewLoadRequest* loadRequest);
     void loadProgressChanged();

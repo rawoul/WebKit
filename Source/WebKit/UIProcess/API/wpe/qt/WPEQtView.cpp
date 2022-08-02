@@ -233,6 +233,12 @@ QUrl WPEQtView::url() const
     return uri ? QUrl(QString(uri)) : m_url;
 }
 
+QUrl WPEQtView::icon() const
+{
+    // FIXME: implement this
+    return QUrl();
+}
+
 /*!
   \qmlproperty url WPEView::url
 
