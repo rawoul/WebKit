@@ -36,7 +36,7 @@ install(
     TARGETS
         qtwpe
     DESTINATION
-        "${CMAKE_INSTALL_LIBDIR}/qt5/qml/org/wpewebkit/qtwpe/"
+        "${CMAKE_INSTALL_LIBDIR}/qt5/qml/QtWebKit/"
     COMPONENT
         runtime
 )
@@ -44,7 +44,7 @@ install(
     FILES
         qmldir
     DESTINATION
-        "${CMAKE_INSTALL_LIBDIR}/qt5/qml/org/wpewebkit/qtwpe/"
+        "${CMAKE_INSTALL_LIBDIR}/qt5/qml/QtWebKit/"
     COMPONENT
         runtime
 )

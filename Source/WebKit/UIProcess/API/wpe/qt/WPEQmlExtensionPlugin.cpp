@@ -27,8 +27,8 @@
 void WPEQmlExtensionPlugin::registerTypes(const char* uri)
 {
     // @uri org.wpewebkit.qtwpe
-    qmlRegisterType<WPEQtView>(uri, 1, 0, "WPEView");
+    qmlRegisterType<WPEQtView>(uri, 3, 0, "WebView");
 
     const QString& msg = QObject::tr("Cannot create separate instance of WPEQtViewLoadRequest");
-    qmlRegisterUncreatableType<WPEQtViewLoadRequest>(uri, 1, 0, "WPEViewLoadRequest", msg);
+    qmlRegisterUncreatableType<WPEQtViewLoadRequest>(uri, 3, 0, "WebViewLoadRequest", msg);
 }

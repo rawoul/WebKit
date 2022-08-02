@@ -1,2 +1,2 @@
-module org.wpewebkit.qtwpe
+module QtWebKit
 plugin qtwpe
