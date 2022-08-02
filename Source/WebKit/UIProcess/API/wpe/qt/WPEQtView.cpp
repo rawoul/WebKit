@@ -66,11 +66,27 @@ WPEQtView::~WPEQtView()
     }
 }
 
-void WPEQtView::geometryChanged(const QRectF& newGeometry, const QRectF&)
+void WPEQtView::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry)
 {
-    m_size = newGeometry.size();
-    if (m_backend)
-        m_backend->resize(newGeometry.size());
+    QQuickItem::geometryChanged(newGeometry, oldGeometry);
+    if (newGeometry.size() != oldGeometry.size()) {
+        m_size = newGeometry.size();
+        if (m_backend)
+            m_backend->resize(m_size);
+    }
+}
+
+void WPEQtView::itemChange(ItemChange change, const ItemChangeData& value)
+{
+    switch (change) {
+    case ItemDevicePixelRatioHasChanged:
+        m_devicePixelRatio = value.realValue;
+        m_backend->setDevicePixelRatio(m_devicePixelRatio);
+        break;
+    default:
+        break;
+    }
+    QQuickItem::itemChange(change, value);
 }
 
 void WPEQtView::configureWindow()
@@ -80,6 +96,7 @@ void WPEQtView::configureWindow()
         return;
 
     win->setSurfaceType(QWindow::OpenGLSurface);
+    m_devicePixelRatio = win->devicePixelRatio();
 
     if (win->isSceneGraphInitialized())
         createWebView();
@@ -94,7 +111,7 @@ void WPEQtView::createWebView()
 
     auto display = static_cast<EGLDisplay>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("egldisplay"));
     auto* context = window()->openglContext();
-    std::unique_ptr<WPEQtViewBackend> backend = WPEQtViewBackend::create(m_size, context, display, QPointer<WPEQtView>(this));
+    std::unique_ptr<WPEQtViewBackend> backend = WPEQtViewBackend::create(m_size * m_devicePixelRatio, context, display, QPointer<WPEQtView>(this));
     if (!backend) {
         qFatal("WPEQtView::createWebView(): EGL initialization failed");
         return;
@@ -109,6 +126,9 @@ void WPEQtView::createWebView()
         }, backend.release()),
         "settings", settings, nullptr));
     g_clear_object(&settings);
+
+    m_backend->setDevicePixelRatio(m_devicePixelRatio);
+    m_backend->resize(m_size);
 
     g_signal_connect_swapped(m_webView, "notify::uri", G_CALLBACK(notifyUrlChangedCallback), this);
     g_signal_connect_swapped(m_webView, "notify::title", G_CALLBACK(notifyTitleChangedCallback), this);
@@ -193,9 +213,9 @@ QSGNode* WPEQtView::updatePaintNode(QSGNode* node, UpdatePaintNodeData*)
         return node;
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
-    auto texture = window()->createTextureFromNativeObject(QQuickWindow::NativeObjectTexture, &textureId, 0, m_size.toSize(), QQuickWindow::TextureHasAlphaChannel);
+    auto texture = window()->createTextureFromNativeObject(QQuickWindow::NativeObjectTexture, &textureId, 0, m_size.toSize() * m_devicePixelRatio, QQuickWindow::TextureHasAlphaChannel);
 #else
-    auto texture = window()->createTextureFromId(textureId, m_size.toSize(), QQuickWindow::TextureHasAlphaChannel);
+    auto texture = window()->createTextureFromId(textureId, m_size.toSize() * m_devicePixelRatio, QQuickWindow::TextureHasAlphaChannel);
 #endif
     textureNode->setTexture(texture);
     textureNode->setRect(boundingRect());

@@ -43,6 +43,7 @@ public:
     virtual ~WPEQtViewBackend();
 
     void resize(const QSizeF&);
+    void setDevicePixelRatio(qreal devicePixelRatio);
     GLuint texture(QOpenGLContext*);
     bool hasValidSurface() const { return m_surface.isValid(); };
 
@@ -72,6 +73,7 @@ private:
     QPointer<WPEQtView> m_view;
     QOffscreenSurface m_surface;
     QSizeF m_size;
+    qreal m_dpr = 1.0;
     GLuint m_textureId { 0 };
     unsigned m_program { 0 };
     unsigned m_textureUniform { 0 };

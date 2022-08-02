@@ -84,6 +84,7 @@ protected:
     void setErrorOccured(bool errorOccured) { m_errorOccured = errorOccured; };
 
     void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;
+    void itemChange(ItemChange change, const ItemChangeData& value) override;
 
     void hoverEnterEvent(QHoverEvent*) override;
     void hoverLeaveEvent(QHoverEvent*) override;
@@ -114,6 +115,7 @@ private:
     QString m_html;
     QUrl m_baseUrl;
     QSizeF m_size;
+    qreal m_devicePixelRatio = 1.0;
     WPEQtViewBackend* m_backend { nullptr };
     bool m_errorOccured { false };
 };

@@ -146,6 +146,12 @@ void WPEQtViewBackend::resize(const QSizeF& newSize)
     wpe_view_backend_dispatch_set_size(backend(), m_size.width(), m_size.height());
 }
 
+void WPEQtViewBackend::setDevicePixelRatio(qreal devicePixelRatio)
+{
+    m_dpr = devicePixelRatio;
+    wpe_view_backend_dispatch_set_device_scale_factor(backend(), devicePixelRatio);
+}
+
 GLuint WPEQtViewBackend::texture(QOpenGLContext* context)
 {
     if (!m_lockedImage || !hasValidSurface())
@@ -161,7 +167,6 @@ GLuint WPEQtViewBackend::texture(QOpenGLContext* context)
         glFunctions->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glFunctions->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glFunctions->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glFunctions->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_size.width(), m_size.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glFunctions->glBindTexture(GL_TEXTURE_2D, 0);
     }
 
@@ -242,7 +247,7 @@ void WPEQtViewBackend::dispatchHoverMoveEvent(QHoverEvent* event)
     uint32_t state = !!m_mousePressedButton;
     struct wpe_input_pointer_event wpeEvent = { wpe_input_pointer_event_type_motion,
         static_cast<uint32_t>(event->timestamp()),
-        event->pos().x(), event->pos().y(),
+        (int)(event->pos().x() * m_dpr), (int)(event->pos().y() * m_dpr),
         m_mousePressedButton, state, modifiers() };
     wpe_view_backend_dispatch_pointer_event(backend(), &wpeEvent);
 }
@@ -268,7 +273,7 @@ void WPEQtViewBackend::dispatchMousePressEvent(QMouseEvent* event)
     m_mouseModifiers |= modifier;
     struct wpe_input_pointer_event wpeEvent = { wpe_input_pointer_event_type_button,
         static_cast<uint32_t>(event->timestamp()),
-        event->x(), event->y(), button, state, modifiers() };
+        (int)(event->x() * m_dpr), (int)(event->y() * m_dpr), button, state, modifiers() };
     wpe_view_backend_dispatch_pointer_event(backend(), &wpeEvent);
 }
 
@@ -293,7 +298,7 @@ void WPEQtViewBackend::dispatchMouseReleaseEvent(QMouseEvent* event)
     m_mouseModifiers &= ~modifier;
     struct wpe_input_pointer_event wpeEvent = { wpe_input_pointer_event_type_button,
         static_cast<uint32_t>(event->timestamp()),
-        event->x(), event->y(), button, state, modifiers() };
+        (int)(event->x() * m_dpr), (int)(event->y() * m_dpr), button, state, modifiers() };
     wpe_view_backend_dispatch_pointer_event(backend(), &wpeEvent);
 }
 
@@ -366,7 +371,7 @@ void WPEQtViewBackend::dispatchTouchEvent(QTouchEvent* event)
     struct wpe_input_touch_event_raw* rawEvents = g_new0(wpe_input_touch_event_raw, event->touchPoints().length());
     for (auto& point : event->touchPoints()) {
         rawEvents[i] = { eventType, static_cast<uint32_t>(event->timestamp()),
-            point.id(), static_cast<int32_t>(point.pos().x()), static_cast<int32_t>(point.pos().y()) };
+            point.id(), static_cast<int32_t>(point.pos().x() * m_dpr), static_cast<int32_t>(point.pos().y() * m_dpr) };
         i++;
     }
 
