@@ -317,7 +317,7 @@ void WPEQtViewBackend::dispatchWheelEvent(QWheelEvent* event)
         wpeEvent.x_axis = numDegrees.x();
     else
         wpeEvent.y_axis = numDegrees.y();
-    wpeEvent.base.type = static_cast<wpe_input_axis_event_type>(wpe_input_axis_event_type_mask_2d | wpe_input_axis_event_type_motion_smooth);
+    wpeEvent.base.type = static_cast<wpe_input_axis_event_type>(wpe_input_axis_event_type_mask_2d | wpe_input_axis_event_type_motion);
     wpeEvent.base.x = event->QWHEEL_POSITION.x();
     wpeEvent.base.y = event->QWHEEL_POSITION.y();
     wpe_view_backend_dispatch_axis_event(backend(), &wpeEvent.base);
