@@ -207,7 +207,7 @@ WebWheelEvent WebEventFactory::createWebWheelEvent(struct wpe_input_axis_event* 
         auto* event2D = reinterpret_cast<struct wpe_input_axis_2d_event*>(event);
         switch (event->type & (wpe_input_axis_event_type_mask_2d - 1)) {
         case wpe_input_axis_event_type_motion:
-            wheelTicks = WebCore::FloatSize(std::copysign(1, event2D->x_axis), std::copysign(1, event2D->y_axis));
+            wheelTicks = WebCore::FloatSize(std::copysign(5, event2D->x_axis), std::copysign(5, event2D->y_axis));
             delta = wheelTicks;
             delta.scale(WebCore::Scrollbar::pixelsPerLineStep());
             break;
