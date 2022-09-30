@@ -2701,14 +2701,14 @@ MediaPlayer::SupportsType MediaPlayerPrivateGStreamer::supportsType(const MediaE
 
 bool isMediaDiskCacheDisabled()
 {
-    static bool result = false;
+    static bool result = true;
 #if PLATFORM(WPE)
     static std::once_flag once;
     std::call_once(once, []() {
-        auto s = String::fromLatin1(std::getenv("WPE_SHELL_DISABLE_MEDIA_DISK_CACHE"));
+        auto s = String::fromLatin1(std::getenv("WPE_SHELL_ENABLE_MEDIA_DISK_CACHE"));
         if (!s.isEmpty()) {
             String value = s.stripWhiteSpace().convertToLowercaseWithoutLocale();
-            result = (value == "1"_s || value == "t"_s || value == "true"_s);
+            result = !(value == "1"_s || value == "t"_s || value == "true"_s);
         }
     });
 #endif
