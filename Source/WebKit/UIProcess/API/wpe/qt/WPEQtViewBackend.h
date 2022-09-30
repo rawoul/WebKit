@@ -20,8 +20,6 @@
 
 #pragma once
 
-// This include order is necessary to enforce the GBM EGL platform.
-#include <gbm.h>
 #include <epoxy/egl.h>
 
 #include <QHoverEvent>
