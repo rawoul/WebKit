@@ -286,6 +286,11 @@ if (ENABLE_ENCRYPTED_MEDIA)
             platform/graphics/gstreamer/eme/CDMFbxcdm.cpp
             platform/graphics/gstreamer/eme/FbxcdmClientxx.cpp
             platform/graphics/gstreamer/eme/gstfbxcdm.cpp
+            platform/graphics/gstreamer/eme/gstfbxcdmqtivdecbin.cpp
+            platform/graphics/gstreamer/eme/gstfbxcdmfdkaacdecbin.cpp
+            platform/graphics/gstreamer/eme/gstfbxcdmismdviddech264bin.cpp
+            platform/graphics/gstreamer/eme/gstfbxcdmavdecac3bin.cpp
+            platform/graphics/gstreamer/eme/gstfbxcdmavdeceac3bin.cpp
         )
     endif ()
 endif ()

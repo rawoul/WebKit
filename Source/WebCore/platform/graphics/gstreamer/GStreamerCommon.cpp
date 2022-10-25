@@ -63,6 +63,11 @@
 
 #if ENABLE(ENCRYPTED_MEDIA) && ENABLE(FBXCDM)
 #include "gstfbxcdm.h"
+#include "gstfbxcdmavdecac3bin.h"
+#include "gstfbxcdmavdeceac3bin.h"
+#include "gstfbxcdmfdkaacdecbin.h"
+#include "gstfbxcdmismdviddech264bin.h"
+#include "gstfbxcdmqtivdecbin.h"
 #endif
 
 #if ENABLE(VIDEO)
@@ -362,6 +367,23 @@ void registerWebKitGStreamerElements()
 
 #if ENABLE(ENCRYPTED_MEDIA) && ENABLE(FBXCDM)
         gst_element_register(nullptr, "fbxcdm", GST_RANK_MARGINAL, GST_TYPE_FBXCDM);
+
+        gst_element_register(nullptr, "fbxcdmfdkaacdecbin", GST_RANK_PRIMARY + 100, GST_TYPE_FBXCDMFDKAACDECBIN);
+
+        gst_element_register(nullptr, "fbxcdmavdecac3bin", GST_RANK_PRIMARY + 100, GST_TYPE_FBXCDMAVDECAC3BIN);
+        gst_element_register(nullptr, "fbxcdmavdeceac3bin", GST_RANK_PRIMARY + 100, GST_TYPE_FBXCDMAVDECEAC3BIN);
+
+        {
+            GRefPtr<GstElementFactory> elementFactory = adoptGRef(gst_element_factory_find("qtivdec"));
+            if (elementFactory)
+                gst_element_register(nullptr, "fbxcdmqtivdecbin", GST_RANK_PRIMARY + 100, GST_TYPE_FBXCDMQTIVDECBIN);
+        }
+
+        {
+            GRefPtr<GstElementFactory> elementFactory = adoptGRef(gst_element_factory_find("ismdviddec_h264"));
+            if (elementFactory)
+                gst_element_register(nullptr, "fbxcdmismdviddech264bin", GST_RANK_PRIMARY + 100, GST_TYPE_FBXCDMISMDVIDDECH264BIN);
+        }
 
         {
             GRefPtr<GstElementFactory> elementFactory = adoptGRef(gst_element_factory_find("h264parse"));
