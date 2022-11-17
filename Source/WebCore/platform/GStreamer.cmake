@@ -145,6 +145,10 @@ if (ENABLE_VIDEO OR ENABLE_WEB_AUDIO)
         # Specify video decoding limits.
         set_source_files_properties(platform/graphics/gstreamer/mse/MediaPlayerPrivateGStreamerMSE.cpp PROPERTIES COMPILE_DEFINITIONS VIDEO_DECODING_LIMIT="${VIDEO_DECODING_LIMIT}")
     endif ()
+    if (DEFAULT_MSE_MAX_BUFFER_SIZE)
+        # Specify mse buffer limits.
+	set_source_files_properties(platform/graphics/gstreamer/mse/SourceBufferPrivateGStreamer.cpp PROPERTIES COMPILE_DEFINITIONS DEFAULT_MSE_MAX_BUFFER_SIZE="${DEFAULT_MSE_MAX_BUFFER_SIZE}")
+    endif ()
 endif ()
 
 if (USE_GSTREAMER_TRANSCODER)
