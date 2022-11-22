@@ -479,6 +479,13 @@ WEBKIT_API void
 webkit_settings_set_enable_webrtc                              (WebKitSettings *settings,
                                                                 gboolean enabled);
 
+WEBKIT_API gboolean
+webkit_settings_get_allow_scripts_to_close_windows             (WebKitSettings *settings);
+
+WEBKIT_API void
+webkit_settings_set_allow_scripts_to_close_windows             (WebKitSettings *settings,
+                                                                gboolean enabled);
+
 G_END_DECLS
 
 #endif /* WebKitSettings_h */

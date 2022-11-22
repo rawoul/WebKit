@@ -172,6 +172,7 @@ enum {
     PROP_ENABLE_MEDIA,
     PROP_MEDIA_CONTENT_TYPES_REQUIRING_HARDWARE_SUPPORT,
     PROP_ENABLE_WEBRTC,
+    PROP_ALLOW_SCRIPTS_TO_CLOSE_WINDOWS,
     N_PROPERTIES,
 };
 
@@ -402,6 +403,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
     case PROP_ENABLE_WEBRTC:
         webkit_settings_set_enable_webrtc(settings, g_value_get_boolean(value));
         break;
+    case PROP_ALLOW_SCRIPTS_TO_CLOSE_WINDOWS:
+        webkit_settings_set_allow_scripts_to_close_windows(settings, g_value_get_boolean(value));
+        break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, propId, paramSpec);
         break;
@@ -602,6 +606,9 @@ ALLOW_DEPRECATED_DECLARATIONS_END
         break;
     case PROP_ENABLE_WEBRTC:
         g_value_set_boolean(value, webkit_settings_get_enable_webrtc(settings));
+        break;
+    case PROP_ALLOW_SCRIPTS_TO_CLOSE_WINDOWS:
+        g_value_set_boolean(value, webkit_settings_get_allow_scripts_to_close_windows(settings));
         break;
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, propId, paramSpec);
@@ -1585,6 +1592,23 @@ static void webkit_settings_class_init(WebKitSettingsClass* klass)
         "enable-webrtc",
         _("Enable WebRTC"),
         _("Whether WebRTC content should be handled"),
+        FALSE,
+        readWriteConstructParamFlags);
+
+    /**
+     * WebKitSettings:allow-scripts-to-close-windows:
+     *
+     * Allow scripts to close windows.
+     *
+     * When not set, window.close() will fail from javascript if document was not
+     * opened by javascript
+     *
+     * Since: 2.38
+     */
+    sObjProperties[PROP_ALLOW_SCRIPTS_TO_CLOSE_WINDOWS] = g_param_spec_boolean(
+        "allow-scripts-to-close-windows",
+        _("Allow Scripts To Close Windows"),
+        _("Whether to allow window.close() from javascript"),
         FALSE,
         readWriteConstructParamFlags);
 
@@ -3345,6 +3369,47 @@ void webkit_settings_set_enable_webrtc(WebKitSettings* settings, gboolean enable
         webkit_settings_set_enable_media_stream(settings, enabled);
     priv->preferences->setPeerConnectionEnabled(enabled);
     g_object_notify_by_pspec(G_OBJECT(settings), sObjProperties[PROP_ENABLE_WEBRTC]);
+}
+
+/**
+ * webkit_settings_get_allow_scripts_to_close_windows:
+ * @settings: a #WebKitSettings
+ *
+ * Get the [property@Settings:allow_scripts_to_close_windows] property.
+ *
+ * Returns: %TRUE If AllowScriptsToCloseWindows support is enabled or %FALSE otherwise.
+ *
+ * Since: 2.38
+ */
+gboolean webkit_settings_get_allow_scripts_to_close_windows(WebKitSettings* settings)
+{
+    g_return_val_if_fail(WEBKIT_IS_SETTINGS(settings), FALSE);
+
+    return settings->priv->preferences->allowScriptsToCloseWindows();
+}
+
+/**
+ * webkit_settings_set_allow_scripts_to_close_windows:
+ * @settings: a #WebKitSettings
+ * @enabled: Value to be set
+ *
+ * Set the [property@Settings:allow_scripts_to_close_windows] property.
+ *
+ * Setting this property to %TRUE implies that javascript will be able to close windows
+ *
+ * Since: 2.38
+ */
+void webkit_settings_set_allow_scripts_to_close_windows(WebKitSettings* settings, gboolean enabled)
+{
+    g_return_if_fail(WEBKIT_IS_SETTINGS(settings));
+
+    WebKitSettingsPrivate* priv = settings->priv;
+    bool currentValue = priv->preferences->allowScriptsToCloseWindows();
+    if (currentValue == enabled)
+        return;
+
+    priv->preferences->setAllowScriptsToCloseWindows(enabled);
+    g_object_notify_by_pspec(G_OBJECT(settings), sObjProperties[PROP_ALLOW_SCRIPTS_TO_CLOSE_WINDOWS]);
 }
 
 /**

@@ -29,12 +29,6 @@ AcceleratedCompositedAnimationsEnabled:
     WebCore:
       default: true
 
-AllowScriptsToCloseWindows:
-  type: bool
-  defaultValue:
-    WebCore:
-      default: true
-
 AnimatedImageDebugCanvasDrawingEnabled:
   type: bool
   defaultValue:

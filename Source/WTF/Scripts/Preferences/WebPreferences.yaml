@@ -141,6 +141,16 @@ AllowRunningOfInsecureContent:
     WebCore:
       default: false
 
+AllowScriptsToCloseWindows:
+  type: bool
+  defaultValue:
+    WebKitLegacy:
+      default: false
+    WebKit:
+      default: false
+    WebCore:
+      default: false
+
 AllowSettingAnyXHRHeaderFromFileURLs:
   type: bool
   defaultValue:
