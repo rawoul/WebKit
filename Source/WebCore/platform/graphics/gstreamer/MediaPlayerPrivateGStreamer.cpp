@@ -29,7 +29,6 @@
 #if ENABLE(VIDEO) && USE(GSTREAMER)
 
 #include "GraphicsContext.h"
-#include "GStreamerAudioMixer.h"
 #include "GStreamerCommon.h"
 #include "GStreamerRegistryScanner.h"
 #include "HTTPHeaderNames.h"
@@ -44,7 +43,6 @@
 #include "SecurityOrigin.h"
 #include "TimeRanges.h"
 #include "VideoSinkGStreamer.h"
-#include "WebKitAudioSinkGStreamer.h"
 #include "WebKitWebSourceGStreamer.h"
 #include "AudioTrackPrivateGStreamer.h"
 #include "InbandMetadataTextTrackPrivateGStreamer.h"

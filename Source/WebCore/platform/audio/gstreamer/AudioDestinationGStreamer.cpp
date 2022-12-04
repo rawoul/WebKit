@@ -28,7 +28,6 @@
 #include "AudioUtilities.h"
 #include "GStreamerCommon.h"
 #include "Logging.h"
-#include "WebKitAudioSinkGStreamer.h"
 #include "WebKitWebAudioSourceGStreamer.h"
 #include <gst/audio/gstaudiobasesink.h>
 #include <gst/gst.h>
@@ -133,7 +132,7 @@ AudioDestinationGStreamer::AudioDestinationGStreamer(AudioIOCallback& callback, 
 
     // Probe platform early on for a working audio output device. This is not needed for the WebKit
     // custom audio sink because it doesn't rely on autoaudiosink.
-    if (!WEBKIT_IS_AUDIO_SINK(audioSink.get())) {
+    if (1) {
         g_signal_connect(audioSink.get(), "child-added", G_CALLBACK(+[](GstChildProxy*, GObject* object, gchar*, gpointer) {
             if (GST_IS_AUDIO_BASE_SINK(object))
                 g_object_set(GST_AUDIO_BASE_SINK(object), "buffer-time", static_cast<gint64>(100000), nullptr);
