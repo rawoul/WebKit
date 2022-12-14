@@ -675,8 +675,6 @@ createOptionalParserForFormat(const AtomString& trackId, const GstCaps* caps)
 
     if (!g_strcmp0(mediaType, "audio/x-opus"))
         elementClass = "opusparse";
-    else if (!g_strcmp0(mediaType, "video/x-h264"))
-        elementClass = "h264parse";
     else if (!g_strcmp0(mediaType, "audio/mpeg")) {
         int mpegversion = 0;
         gst_structure_get_int(structure, "mpegversion", &mpegversion);
