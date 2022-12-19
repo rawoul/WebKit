@@ -2777,9 +2777,7 @@ static void setPlaybackFlags(GstElement* pipeline, bool isMediaStream)
     hasText = 0x0;
 #endif
 
-#if USE(GSTREAMER_NATIVE_VIDEO)
-    hasSoftwareColorBalance = 0x0;
-#else
+#if !USE(GSTREAMER_NATIVE_VIDEO)
     hasNativeVideo = 0x0;
 #endif
 
@@ -2787,10 +2785,9 @@ static void setPlaybackFlags(GstElement* pipeline, bool isMediaStream)
     hasNativeAudio = 0x0;
 #endif
 
-    GST_INFO_OBJECT(pipeline, "text %s, audio %s (native %s), video %s (native %s, software color balance %s)", boolForPrinting(hasText),
-        boolForPrinting(hasAudio), boolForPrinting(hasNativeAudio), boolForPrinting(hasVideo), boolForPrinting(hasNativeVideo),
-        boolForPrinting(hasSoftwareColorBalance));
-    flags |= hasText | hasAudio | hasVideo | hasNativeVideo | hasNativeAudio | hasSoftwareColorBalance;
+    GST_INFO_OBJECT(pipeline, "text %s, audio %s (native %s), video %s (native %s)", boolForPrinting(hasText),
+        boolForPrinting(hasAudio), boolForPrinting(hasNativeAudio), boolForPrinting(hasVideo), boolForPrinting(hasNativeVideo));
+    flags |= hasText | hasAudio | hasVideo | hasNativeVideo | hasNativeAudio;
     g_object_set(pipeline, "flags", flags, nullptr);
     GST_DEBUG_OBJECT(pipeline, "current pipeline flags %x", flags);
 }
