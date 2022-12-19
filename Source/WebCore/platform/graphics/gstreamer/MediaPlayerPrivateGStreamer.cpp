@@ -2761,6 +2761,7 @@ static void setPlaybackFlags(GstElement* pipeline, bool isMediaStream)
     unsigned hasNativeVideo = getGstPlayFlag("native-video");
     unsigned hasNativeAudio = getGstPlayFlag("native-audio");
     unsigned hasSoftwareColorBalance = getGstPlayFlag("soft-colorbalance");
+    unsigned hasDeinterlace = getGstPlayFlag("deinterlace");
 
     unsigned flags = 0;
     g_object_get(pipeline, "flags", &flags, nullptr);
@@ -2769,6 +2770,7 @@ static void setPlaybackFlags(GstElement* pipeline, bool isMediaStream)
     flags = flags & ~hasNativeAudio;
     flags = flags & ~hasNativeVideo;
     flags = flags & ~hasSoftwareColorBalance;
+    flags = flags & ~hasDeinterlace;
 
     if (isMediaStream)
         flags = flags & ~getGstPlayFlag("buffering");
