@@ -69,6 +69,7 @@ private:
     void exitAcceleratedCompositingMode(uint64_t backingStoreStateID, const UpdateInfo&) override;
     void updateAcceleratedCompositingMode(uint64_t backingStoreStateID, const LayerTreeContext&) override;
     void targetRefreshRateDidChange(unsigned) override;
+    void setDisableComposition(bool) override;
 
 #if !PLATFORM(WPE)
     void incorporateUpdate(const UpdateInfo&);

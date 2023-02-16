@@ -2292,6 +2292,7 @@ private:
 #if PLATFORM(GTK) || PLATFORM(WPE)
     void sendMessageToWebView(UserMessage&&);
     void sendMessageToWebViewWithReply(UserMessage&&, CompletionHandler<void(UserMessage&&)>&&);
+    void setDisableComposition(bool disable);
 #endif
 
 #if ENABLE(MEDIA_STREAM)

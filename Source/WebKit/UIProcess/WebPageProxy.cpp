@@ -63,6 +63,7 @@
 #include "DownloadProxy.h"
 #include "DrawingAreaMessages.h"
 #include "DrawingAreaProxy.h"
+#include "DrawingAreaProxyCoordinatedGraphics.h"
 #include "EventDispatcherMessages.h"
 #include "FormDataReference.h"
 #include "FrameInfoData.h"
@@ -9603,6 +9604,11 @@ void WebPageProxy::deleteSurrounding(int64_t offset, unsigned characterCount)
         return;
 
     send(Messages::WebPage::DeleteSurrounding(offset, characterCount));
+}
+
+void WebPageProxy::setDisableComposition(bool disable)
+{
+    drawingArea()->setDisableComposition(disable);
 }
 #endif // PLATFORM(GTK) || PLATFORM(WPE)
 

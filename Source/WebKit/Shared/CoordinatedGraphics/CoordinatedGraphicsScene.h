@@ -75,6 +75,8 @@ public:
 
     bool isActive() const { return m_isActive; }
     void setActive(bool active) { m_isActive = active; }
+    bool isDisableComposition() const { return m_disableComposition; }
+    void setDisableComposition(bool disable) { m_disableComposition = disable; }
 
 private:
     void commitSceneState(const WebCore::CoordinatedGraphicsState::NicosiaState&);
@@ -104,6 +106,8 @@ private:
     Nicosia::PlatformLayer::LayerID m_rootLayerID { 0 };
 
     WebCore::TextureMapperFPSCounter m_fpsCounter;
+
+    bool m_disableComposition { false };
 };
 
 } // namespace WebKit

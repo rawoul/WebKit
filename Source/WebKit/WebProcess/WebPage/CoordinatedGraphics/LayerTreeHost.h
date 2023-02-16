@@ -103,6 +103,11 @@ public:
     void adjustTransientZoom(double, WebCore::FloatPoint);
     void commitTransientZoom(double, WebCore::FloatPoint);
 #endif
+
+#if USE(COORDINATED_GRAPHICS)
+    void setDisableComposition(bool disable);
+#endif
+
 private:
 #if USE(COORDINATED_GRAPHICS)
     void layerFlushTimerFired();

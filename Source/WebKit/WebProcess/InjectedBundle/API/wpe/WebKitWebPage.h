@@ -103,6 +103,8 @@ webkit_web_page_send_message_to_view_finish (WebKitWebPage      *web_page,
                                              GAsyncResult       *result,
                                              GError            **error);
 
+WEBKIT_API void
+webkit_web_page_set_disable_composition(WebKitWebPage* webPage, gboolean disable);
 
 G_END_DECLS
 

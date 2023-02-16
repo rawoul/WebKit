@@ -917,6 +917,11 @@ WebKitWebEditor* webkit_web_page_get_editor(WebKitWebPage* webPage)
     return webPage->priv->webEditor.get();
 }
 
+void webkit_web_page_set_disable_composition(WebKitWebPage* webPage, gboolean disable)
+{
+    webPage->priv->webPage->send(Messages::WebPageProxy::setDisableComposition(disable));
+}
+
 /**
  * webkit_web_page_send_message_to_view:
  * @web_page: a #WebKitWebPage

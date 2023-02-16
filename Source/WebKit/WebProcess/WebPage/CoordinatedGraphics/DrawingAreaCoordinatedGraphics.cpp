@@ -400,6 +400,11 @@ void DrawingAreaCoordinatedGraphics::attachViewOverlayGraphicsLayer(GraphicsLaye
         m_previousLayerTreeHost->setViewOverlayRootLayer(viewOverlayRootLayer);
 }
 
+void DrawingAreaCoordinatedGraphics::setDisableComposition(bool disable)
+{
+    m_layerTreeHost->setDisableComposition(disable);
+}
+
 void DrawingAreaCoordinatedGraphics::updateBackingStoreState(uint64_t stateID, bool respondImmediately, float deviceScaleFactor, const IntSize& size, const IntSize& scrollOffset)
 {
     if (stateID != m_backingStoreStateID && !m_layerTreeHost)

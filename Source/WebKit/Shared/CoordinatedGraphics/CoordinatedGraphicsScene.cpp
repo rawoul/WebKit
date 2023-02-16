@@ -286,7 +286,7 @@ void CoordinatedGraphicsScene::updateSceneState()
             for (auto& compositionLayer : m_nicosia.state.layers) {
                 auto& layer = texmapLayer(*compositionLayer);
                 compositionLayer->commitState(
-                    [&layer, &layersByBacking, &replacedProxiesToInvalidate]
+                    [this, &layer, &layersByBacking, &replacedProxiesToInvalidate]
                     (const Nicosia::CompositionLayer::LayerState& layerState)
                     {
                         if (layerState.delta.positionChanged)
@@ -352,7 +352,7 @@ void CoordinatedGraphicsScene::updateSceneState()
                         if (layerState.delta.debugBorderChanged)
                             layer.setDebugVisuals(layerState.debugBorder.visible, layerState.debugBorder.color, layerState.debugBorder.width);
 
-                        if (layerState.backingStore) {
+                        if (layerState.backingStore && !isDisableComposition()) {
                             auto& impl = backingStoreImpl(*layerState.backingStore);
                             layersByBacking.backingStore.append(
                                 { std::ref(layer), std::ref(impl), impl.takeUpdate() });

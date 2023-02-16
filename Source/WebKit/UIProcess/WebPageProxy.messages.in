@@ -576,6 +576,7 @@ messages -> WebPageProxy {
 #if PLATFORM(GTK) || PLATFORM(WPE)
     SendMessageToWebView(struct WebKit::UserMessage userMessage)
     SendMessageToWebViewWithReply(struct WebKit::UserMessage userMessage) -> (struct WebKit::UserMessage replyMessage)
+    setDisableComposition(bool disable)
 #endif
 
     DidFindTextManipulationItems(Vector<WebCore::TextManipulationController::ManipulationItem> items)

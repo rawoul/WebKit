@@ -81,6 +81,9 @@ public:
     void suspend();
     void resume();
 
+    bool isDisableComposition() const { return m_scene->isDisableComposition(); }
+    void setDisableComposition(bool disable) { m_scene->setDisableComposition(disable); }
+
 private:
     ThreadedCompositor(Client&, ThreadedDisplayRefreshMonitor::Client&, WebCore::PlatformDisplayID, const WebCore::IntSize&, float scaleFactor, WebCore::TextureMapper::PaintFlags);
 

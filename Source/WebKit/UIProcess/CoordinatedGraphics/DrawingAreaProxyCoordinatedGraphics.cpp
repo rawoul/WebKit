@@ -304,6 +304,11 @@ void DrawingAreaProxyCoordinatedGraphics::backingStoreStateDidChange(RespondImme
     sendUpdateBackingStoreState(respondImmediatelyOrNot);
 }
 
+void DrawingAreaProxyCoordinatedGraphics::setDisableComposition(bool disable)
+{
+    send(Messages::DrawingArea::SetDisableComposition(disable));
+}
+
 void DrawingAreaProxyCoordinatedGraphics::sendUpdateBackingStoreState(RespondImmediatelyOrNot respondImmediatelyOrNot)
 {
     ASSERT(m_currentBackingStoreStateID < m_nextBackingStoreStateID);

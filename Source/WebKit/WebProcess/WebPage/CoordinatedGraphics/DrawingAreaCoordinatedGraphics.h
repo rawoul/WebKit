@@ -83,6 +83,7 @@ private:
     // IPC message handlers.
     void updateBackingStoreState(uint64_t backingStoreStateID, bool respondImmediately, float deviceScaleFactor, const WebCore::IntSize&, const WebCore::IntSize& scrollOffset) override;
     void targetRefreshRateDidChange(unsigned rate) override;
+    void setDisableComposition(bool disable) override;
     void didUpdate() override;
 
 #if PLATFORM(GTK)

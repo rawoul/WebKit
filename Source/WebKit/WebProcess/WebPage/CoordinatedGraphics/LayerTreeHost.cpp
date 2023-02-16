@@ -84,6 +84,11 @@ LayerTreeHost::LayerTreeHost(WebPage& webPage)
     didChangeViewport();
 }
 
+void LayerTreeHost::setDisableComposition(bool disable)
+{
+    m_compositor->setDisableComposition(disable);
+}
+
 LayerTreeHost::~LayerTreeHost()
 {
     cancelPendingLayerFlush();
