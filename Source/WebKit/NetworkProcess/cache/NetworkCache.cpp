@@ -304,7 +304,7 @@ static StoreDecision makeStoreDecision(const WebCore::ResourceRequest& originalR
     // FIXME: We should also make sure make the MSE paths are copy-free so we can use mapped buffers from disk effectively.
     auto requester = originalRequest.requester();
     bool isDefinitelyStreamingMedia = requester == WebCore::ResourceRequest::Requester::Media;
-    bool isLikelyStreamingMedia = requester == WebCore::ResourceRequest::Requester::XHR && isMediaMIMEType(response.mimeType());
+    bool isLikelyStreamingMedia = (requester == WebCore::ResourceRequest::Requester::XHR || requester == WebCore::ResourceRequest::Requester::Fetch) && isMediaMIMEType(response.mimeType());
     if (isLikelyStreamingMedia || isDefinitelyStreamingMedia)
         return StoreDecision::NoDueToStreamingMedia;
 
