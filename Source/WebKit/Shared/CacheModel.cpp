@@ -138,14 +138,10 @@ uint64_t calculateURLCacheDiskCapacity(CacheModel cacheModel, uint64_t diskFreeS
     }
     case CacheModel::DocumentBrowser: {
         // Disk cache capacity (in bytes)
-        if (diskFreeSize >= 16384)
-            urlCacheDiskCapacity = 75 * MB;
-        else if (diskFreeSize >= 8192)
-            urlCacheDiskCapacity = 40 * MB;
-        else if (diskFreeSize >= 4096)
+        if (diskFreeSize >= 512)
             urlCacheDiskCapacity = 30 * MB;
         else
-            urlCacheDiskCapacity = 20 * MB;
+            urlCacheDiskCapacity = 0;
 
         break;
     }
