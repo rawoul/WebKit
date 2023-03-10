@@ -118,7 +118,7 @@ WI.ConsoleManager = class ConsoleManager extends WI.Object
         }
     }
 
-    messagesCleared()
+    messagesCleared(reason)
     {
         if (this._remoteObjectsToRelease) {
             for (let remoteObject of this._remoteObjectsToRelease)
@@ -128,24 +128,40 @@ WI.ConsoleManager = class ConsoleManager extends WI.Object
 
         WI.ConsoleCommandResultMessage.clearMaximumSavedResultIndex();
 
-        if (this._clearMessagesRequested) {
-            // Frontend requested "clear console" and Backend successfully completed the request.
-            this._clearMessagesRequested = false;
+        // COMPATIBILITY (iOS 16.4, macOS 13.3): `Console.ClearReason` did not exist.
+        if (!reason) {
+            if (this._clearMessagesRequested) {
+                // Frontend requested "clear console" and Backend successfully completed the request.
+                this._clearMessagesRequested = false;
+                this._clearMessages();
+                return;
+            }
 
-            this._warningCount = 0;
-            this._errorCount = 0;
-            this._issues = [];
-
-            this._lastMessageLevel = null;
-
-            this.dispatchEventToListeners(WI.ConsoleManager.Event.Cleared);
-        } else {
             // Received an unrequested clear console event.
             // This could be for a navigation or other reasons (like console.clear()).
             // If this was a reload, we may not want to dispatch WI.ConsoleManager.Event.Cleared.
             // To detect if this is a reload we wait a turn and check if there was a main resource change reload.
             setTimeout(this._delayedMessagesCleared.bind(this), 0);
+
+            return;
         }
+
+        switch (reason) {
+        case WI.ConsoleManager.ClearReason.ConsoleAPI:
+            this._clearMessages();
+            return;
+
+        case WI.ConsoleManager.ClearReason.MainFrameNavigation:
+            console.assert(this._isNewPageOrReload);
+            this._isNewPageOrReload = false;
+
+            if (WI.settings.clearLogOnNavigate.value)
+                this._clearMessages();
+
+            return;
+        }
+
+        console.assert(false, "not reached");
     }
 
     messageRepeatCountUpdated(count, timestamp)
@@ -197,6 +213,17 @@ WI.ConsoleManager = class ConsoleManager extends WI.Object
         this._lastMessageLevel = level;
     }
 
+    _clearMessages()
+    {
+        this._warningCount = 0;
+        this._errorCount = 0;
+        this._issues = [];
+
+        this._lastMessageLevel = null;
+
+        this.dispatchEventToListeners(WI.ConsoleManager.Event.Cleared);
+    }
+
     _delayedMessagesCleared()
     {
         if (this._isNewPageOrReload) {
@@ -206,14 +233,7 @@ WI.ConsoleManager = class ConsoleManager extends WI.Object
                 return;
         }
 
-        this._warningCount = 0;
-        this._errorCount = 0;
-        this._issues = [];
-
-        this._lastMessageLevel = null;
-
-        // A console.clear() or command line clear() happened.
-        this.dispatchEventToListeners(WI.ConsoleManager.Event.Cleared);
+        this._clearMessages();
     }
 
     _mainResourceDidChange(event)
@@ -240,3 +260,8 @@ WI.ConsoleManager.Event = {
     IssueAdded: "console-manager-issue-added",
     PreviousMessageRepeatCountUpdated: "console-manager-previous-message-repeat-count-updated",
 };
+
+WI.ConsoleManager.ClearReason = {
+    ConsoleAPI: "console-api",
+    MainFrameNavigation: "main-frame-navigation",
+}
