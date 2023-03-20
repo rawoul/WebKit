@@ -266,11 +266,7 @@ static void webkit_media_src_class_init(WebKitMediaSrcClass* klass)
 
     eklass->change_state = GST_DEBUG_FUNCPTR(webKitMediaSrcChangeState);
     eklass->send_event = GST_DEBUG_FUNCPTR(webKitMediaSrcSendEvent);
-
-    // In GStreamer 1.20 and older urisourcebin mishandles source elements with dynamic pads. This
-    // is not an issue in 1.22.
-    if (webkitGstCheckVersion(1, 22, 0))
-        eklass->query = GST_DEBUG_FUNCPTR(webKitMediaSrcQuery);
+    eklass->query = GST_DEBUG_FUNCPTR(webKitMediaSrcQuery);
 
     g_object_class_install_property(oklass,
         PROP_N_AUDIO,
