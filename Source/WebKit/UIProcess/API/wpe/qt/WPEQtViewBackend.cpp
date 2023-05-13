@@ -120,7 +120,9 @@ WPEQtViewBackend::WPEQtViewBackend(const QSizeF& size, EGLDisplay display, EGLCo
             static_cast<WPEQtViewBackend*>(data)->displayImage(image);
         },
         // padding
-        nullptr, nullptr, nullptr
+        nullptr, nullptr, nullptr,
+        // unexport_egl_image
+        nullptr,
     };
 
     m_exportable = wpe_view_backend_exportable_fdo_egl_create(&exportableClient, this, m_size.width(), m_size.height());
