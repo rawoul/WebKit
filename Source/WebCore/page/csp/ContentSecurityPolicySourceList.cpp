@@ -277,6 +277,8 @@ template<typename CharacterType> void ContentSecurityPolicySourceList::parse(Str
         ASSERT(buffer.atEnd() || isASCIISpace(*buffer));
     }
     
+    // XXX: Freebox HACK to support widevine device individualization using script injection in the web page
+    m_list.append(ContentSecurityPolicySource(m_policy, "https"_s, "www.googleapis.com"_s, 443, "/certificateprovisioning/"_s, false, false, IsSelfSource::No));
     m_list.shrinkToFit();
 }
 
