@@ -81,7 +81,6 @@ public:
 
     void asyncStateChangeDone() override;
 
-    bool hasAllTracks() const { return m_hasAllTracks; }
     void startSource(const Vector<RefPtr<MediaSourceTrackGStreamer>>& tracks);
     WebKitMediaSrc* webKitMediaSrc() { return reinterpret_cast<WebKitMediaSrc*>(m_source.get()); }
 
@@ -106,7 +105,6 @@ private:
     WeakPtr<MediaSourcePrivateClient> m_mediaSource;
     RefPtr<MediaSourcePrivateGStreamer> m_mediaSourcePrivate;
     MediaTime m_mediaTimeDuration { MediaTime::invalidTime() };
-    bool m_hasAllTracks = false;
     Vector<RefPtr<MediaSourceTrackGStreamer>> m_tracks;
 
     bool m_isWaitingForPreroll = true;
