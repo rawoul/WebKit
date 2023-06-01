@@ -1236,24 +1236,20 @@ bool SourceBuffer::canPlayThroughRange(const PlatformTimeRanges& ranges)
 
     monitorBufferingRate();
 
-    // Assuming no fluctuations in the buffering rate, loading 1 second per second or greater
-    // means indefinite playback. This could be improved by taking jitter into account.
-    if (m_averageBufferRate > 1)
-        return true;
-
-    // Add up all the time yet to be buffered.
-    MediaTime currentTime = m_source->currentTime();
     MediaTime duration = m_source->duration();
+    if (!duration.isValid())
+        return false;
 
-    PlatformTimeRanges unbufferedRanges = ranges;
-    unbufferedRanges.invert();
-    unbufferedRanges.intersectWith(PlatformTimeRanges(currentTime, std::max(currentTime, duration)));
-    MediaTime unbufferedTime = unbufferedRanges.totalDuration();
-    if (!unbufferedTime.isValid())
+    MediaTime currentTime = m_source->currentTime();
+    if (duration <= currentTime)
         return true;
 
-    MediaTime timeRemaining = duration - currentTime;
-    return unbufferedTime.toDouble() / m_averageBufferRate < timeRemaining.toDouble();
+    // If we have data up to the mediasource's duration or 3s ahead, we can
+    // assume that we can play without interruption.
+    MediaTime bufferedEnd = ranges.maximumBufferedTime();
+    MediaTime timeAhead = std::min(duration, currentTime + MediaTime::createWithDouble(3));
+
+    return bufferedEnd >= timeAhead;
 }
 
 void SourceBuffer::sourceBufferPrivateReportExtraMemoryCost(uint64_t extraMemory)
