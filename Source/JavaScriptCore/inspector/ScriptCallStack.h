@@ -43,7 +43,7 @@ class AsyncStackTrace;
 
 class JS_EXPORT_PRIVATE ScriptCallStack : public RefCounted<ScriptCallStack> {
 public:
-    static constexpr size_t maxCallStackSizeToCapture = 200;
+    static constexpr size_t maxCallStackSizeToCapture = 400;
     
     static Ref<ScriptCallStack> create();
     static Ref<ScriptCallStack> create(Vector<ScriptCallFrame>&&, bool truncated = false, AsyncStackTrace* parentStackTrace = nullptr);
