@@ -28,6 +28,7 @@
 #include <gst/gst.h>
 #include <wtf/text/WTFString.h>
 
+#define WEBCORE_GSTREAMER_EME_UTILITIES_OLD_CLEARKEY_UUID "58147ec8-0423-4659-92e6-f52c5ce8c3cc"
 #define WEBCORE_GSTREAMER_EME_UTILITIES_CLEARKEY_UUID "1077efec-c0b2-4d02-ace3-3c1e52e2fb4b"
 #define WEBCORE_GSTREAMER_EME_UTILITIES_WIDEVINE_UUID "edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
 #define WEBCORE_GSTREAMER_EME_UTILITIES_PLAYREADY_UUID "9a04f079-9840-4286-ab92-e65be0885f95"
@@ -107,7 +108,7 @@ private:
 class GStreamerEMEUtilities {
 
 public:
-    static constexpr auto s_ClearKeyUUID = WEBCORE_GSTREAMER_EME_UTILITIES_CLEARKEY_UUID ""_s;
+    static constexpr std::array<ASCIILiteral, 2> s_ClearKeyUUIDs = { WEBCORE_GSTREAMER_EME_UTILITIES_CLEARKEY_UUID ""_s, WEBCORE_GSTREAMER_EME_UTILITIES_OLD_CLEARKEY_UUID ""_s };;
     static constexpr auto s_ClearKeyKeySystem = "org.w3.clearkey"_s;
     static constexpr auto s_WidevineUUID = WEBCORE_GSTREAMER_EME_UTILITIES_WIDEVINE_UUID ""_s;
     static constexpr auto s_WidevineKeySystem = "com.widevine.alpha"_s;
@@ -125,7 +126,7 @@ public:
 
     static bool isClearKeyUUID(const String& uuid)
     {
-        return equalIgnoringASCIICase(uuid, s_ClearKeyUUID);
+        return equalIgnoringASCIICase(uuid, s_ClearKeyUUIDs[0]) || equalIgnoringASCIICase(uuid, s_ClearKeyUUIDs[1]);
     }
 
     static bool isWidevineKeySystem(const String& keySystem)
@@ -163,7 +164,7 @@ public:
     static const char* keySystemToUuid(const String& keySystem)
     {
         if (isClearKeyKeySystem(keySystem))
-            return s_ClearKeyUUID;
+            return s_ClearKeyUUIDs[0];
 
         if (isWidevineKeySystem(keySystem))
             return s_WidevineUUID;
