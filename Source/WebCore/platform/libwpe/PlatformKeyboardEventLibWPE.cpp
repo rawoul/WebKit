@@ -339,7 +339,7 @@ String PlatformKeyboardEvent::keyValueForWPEKeyCode(unsigned keyCode)
     case WPE_KEY_AudioPause:
         return "MediaPause"_s;
     case WPE_KEY_AudioPlay:
-        return "MediaPlay"_s;
+        return "MediaPlayPause"_s;
     // MediaPlayPause
     case WPE_KEY_AudioRecord:
         return "MediaRecord"_s;
@@ -685,7 +685,7 @@ String PlatformKeyboardEvent::keyCodeForHardwareKeyCode(unsigned keyCode)
     case 0x0089:
         return "Again"_s;
     case 0x008A:
-        return "Props"_s;
+        return "Help"_s;
     case 0x008B:
         return "Undo"_s;
     case 0x008C:
@@ -702,6 +702,8 @@ String PlatformKeyboardEvent::keyCodeForHardwareKeyCode(unsigned keyCode)
         return "Cut"_s;
     case 0x0092:
         return "Help"_s;
+    case 0x0093:
+	return "ContextMenu"_s;
     case 0x0094:
         return "LaunchApp2"_s;
     case 0x0097:
@@ -726,6 +728,10 @@ String PlatformKeyboardEvent::keyCodeForHardwareKeyCode(unsigned keyCode)
         return "MediaTrackPrevious"_s;
     case 0x00AE:
         return "MediaStop"_s;
+    case 0x00AF:
+        return "MediaRecord"_s;
+    case 0x00B0:
+        return "MediaRewind"_s;
     case 0x00B3:
         return "LaunchMediaPlayer"_s;
     case 0x00B4:
@@ -756,8 +762,14 @@ String PlatformKeyboardEvent::keyCodeForHardwareKeyCode(unsigned keyCode)
         return "F23"_s;
     case 0x00CA:
         return "F24"_s;
+    case 0x00D8:
+        return "MediaFastForward"_s;
     case 0x00E1:
         return "BrowserSearch"_s;
+    case 0x019A:
+	return "PageUp"_s;
+    case 0x019B:
+	return "PageDown"_s;
     default:
         break;
     }
