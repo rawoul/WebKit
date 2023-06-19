@@ -32,12 +32,17 @@ namespace WTF {
 
 bool isInsideFlatpak()
 {
+#if ENABLE(BUBBLEWRAP_SANDBOX)
     static bool returnValue = g_file_test("/.flatpak-info", G_FILE_TEST_EXISTS);
     return returnValue;
+#else
+    return false;
+#endif
 }
 
 bool isInsideUnsupportedContainer()
 {
+#if ENABLE(BUBBLEWRAP_SANDBOX)
     static bool inContainer = g_file_test("/run/.containerenv", G_FILE_TEST_EXISTS);
     static int supportedContainer = -1;
 
@@ -63,24 +68,35 @@ bool isInsideUnsupportedContainer()
     }
 
     return inContainer && !supportedContainer;
+#else
+    return false;
+#endif
 }
 
 bool isInsideSnap()
 {
+#if ENABLE(BUBBLEWRAP_SANDBOX)
     // The "SNAP" environment variable is not unlikely to be set for/by something other
     // than Snap, so check a couple of additional variables to avoid false positives.
     // See: https://snapcraft.io/docs/environment-variables
     static bool returnValue = g_getenv("SNAP") && g_getenv("SNAP_NAME") && g_getenv("SNAP_REVISION");
     return returnValue;
+#else
+    return false;
+#endif
 }
 
 bool shouldUsePortal()
 {
+#if ENABLE(BUBBLEWRAP_SANDBOX)
     static bool returnValue = []() -> bool {
         const char* usePortal = isInsideFlatpak() || isInsideSnap() ? "1" : g_getenv("WEBKIT_USE_PORTAL");
         return usePortal && usePortal[0] != '0';
     }();
     return returnValue;
+#else
+    return false;
+#endif
 }
 
 String& sandboxedAccessibilityBusAddress()
